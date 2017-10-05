@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#installation
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+PYTHON_VERSION=`python3 —-version`
+if [ “$PYTHON_VERSION” != “Python 3.6.2” ]
+then
+brew instal python3
+fi
+pip3 install ecdsa
+pip3 install stem
+pip3 install base58
+
+#config filesystem tree
+mkdir webtoken
+PWD = `pwd`
