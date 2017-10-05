@@ -9,7 +9,7 @@ class Blockchain:
             conn = sqlite3.connect('blockchain.db')# needs file path
             c = conn.cursor()
             c.execute('''CREATE TABLE blocks
-            (block_id INTEGER PRIMARY KEY, prevhash TEXT, data TEXT, block_hash TEXT, nonce INTEGER)''')
+            (block_id INTEGER PRIMARY KEY, prevhash BLOB NOT NULL, data BLOB NOT NULL, block_hash BLOB NOT NULL, nonce BLOB NOT NULL)''')
             conn.commit()
             conn.close()
             update_chain()

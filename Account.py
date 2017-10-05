@@ -54,7 +54,7 @@ class Account:
             c.execute('SELECT {} FROM accounts'.format(select_str))
             a = c.fetchall()
         conn.close()
-        return a
+        return a#a is in bytes if not block_id
     def update(variable, value, location, location_value):
         """variable is the variably you want to change. value is the desired value for the variable"""
         try:
@@ -131,8 +131,8 @@ class Account:
             conn = sqlite3.connect('wallet.db')#needs to specify file path
             c = conn.cursor()
             c.execute('''CREATE TABLE accounts
-            (id_num INTEGER PRIMARY KEY ASC, address TEXT NOT NULL, privkey TEXT NOT NULL,
-            pubkey TEXT NOT NULL, sig TEXT NOT NULL, sigtext, TEXT NOT NULL, balance REAL)''')
+            (id_num INTEGER PRIMARY KEY ASC, address BLOB NOT NULL, privkey BLOB NOT NULL,
+            pubkey BLOB NOT NULL, sig BLOB NOT NULL, sigtext, BLOB NOT NULL, balance BLOB)''')
             new_wallet()
             conn.commit()
             conn.close()
