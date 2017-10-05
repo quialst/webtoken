@@ -61,6 +61,30 @@ class Blockchain:
 
     def searchTransaction():
 
-    def retrieve():
-
+    def retrieve(variable, condition, location, location_value, is_like):
+        conn = sqlite3.connect('blockchain.db')
+        c = conn.cursor()
+        select_str = variable
+        where_str = ''
+        if location != None or location_value != None:
+            where_str = '{}'.format(location)
+            t = (location_value, )
+        if condition == 'min' or condition == 'max':
+            select_str = '{}({})'.format(condition.upper(), select_str)
+        else:
+            select_str = variable
+        if location == None or location_value == None:
+            if is_like != True:
+                c.execute('SELECT {} FROM accounts WHERE {} = ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
+                a = c.fetchall()
+            elif is_like == True:
+                c.execute('SELECT {} FROM accounts WHERE {} LIKE ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
+                a = c.fetchall()
+            else:
+                raise Exceptions.RetrievalException('SQLite3ArgumentError', 'Invalid argument "{}"'.format(is_like))
+        else:
+            c.execute('SELECT {} FROM accounts'.format(select_str))
+            a = c.fetchall()
+        conn.close()
+        return a
     def insert():
