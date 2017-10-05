@@ -1,5 +1,5 @@
 import sqlite3
-# update class needs exception handlers
+# update class needs exception handlers too
 
 class Blockchain:
     def create_blockchain():
