@@ -12,7 +12,7 @@ class Account:
         try:
             conn = sqlite3.connect('wallet.db')#needs to specify file path
             c = conn.cursor()
-            t = (bytes(id_num), bytes(address), bytes(privkey), bytes(pubkey), bytes(sig), bytes(sigtext), bytes(balance))
+            t = (id_num, bytearray(address, endocing='utf-8'), bytearray(privkey, endocing='utf-8'), bytearray(pubkey, endocing='utf-8'), bytearray(sig, endocing='utf-8'), bytearray(sigtext, endocing='utf-8'), bytearray(balance, endocing='utf-8'))
             c.execute('INSERT INTO accounts VALUES (?,?,?,?,?,?,?)', t)
             conn.commit()
             conn.close()
@@ -100,9 +100,12 @@ class Account:
 
     def new_address():
         try:
-            id_num = 0
-            if exists():#if id_num exists
-                id_num = retrieve('id_num', 'max', None, None, False)#needs to be turned to int type
+            id_num = retrieve('id_num', 'max', None, None, False)
+            if id_num == None:
+                id_num = 0
+            else:
+                id_num = id_num + 1
+            id_num = retrieve('id_num', 'max', None, None, False)
             sk = SigningKey.generate(curve=SECP256k1)# private ecdsa key
             vk = sk.get_verifying_key()# verifying key j4kiks
             sigtext = b"signature"
@@ -116,8 +119,9 @@ class Account:
             s5 = s4[0:4]# take first 4 bytes
             s6 = (ck+s5)# add 4 bytes to end of ck
             address = base58.b58encode(s6)# do a base58 encode
-            insert(id_num, address, sk, vk, sig, sigtext, 0)
             id_num = id_num + 1
+            insert(id_num, address, sk, vk, sig, sigtext, 0)
+
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Wallet creation stopped")
         except EOFError:
