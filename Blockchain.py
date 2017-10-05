@@ -1,7 +1,7 @@
 import sqlite3
 # update class needs exception handlers too
 
-#9, 41, 65, 66, 68, 77, 80, 84, 91, 131
+#9, 41, 65, 66, 69, 77, 80, 84, 91, 131
 
 class Blockchain:
     def create_blockchain():
@@ -42,7 +42,22 @@ class Blockchain:
             c = conn.cursor()
             set_str = variable
             where_str = location
-            t = (value, location_value)
+            if isinstance(value, str):
+                if isinstance(location_value, str):
+                    t = (bytearray(value, encoding='utf-8'), bytearray(location_value, encoding='utf-8'))
+                elif isinstance(location_value, int):
+                    t = (bytearray(value, encoding='utf-8'), bytearray(location_value))
+                else:
+                    raise TypeError('Invalid update argument')
+            elif isinstance(value, int):
+                if isinstance(location_value, str):
+                    t = (bytearray(value, encoding='utf-8'), bytearray(location_value, encoding='utf-8'))
+                elif isinstance(location_value, int):
+                    t = (bytearray(value, encoding='utf-8'), bytearray(location_value))
+                else:
+                    raise TypeError('Invalid update argument')
+            else:
+                raise TypeError('Invalid update argument')
             c.execute('UPDATE blocks SET {} = ? WHERE {} = ?'.format(set_str, where_str), t)
             conn.commit()
             conn.close()
@@ -65,17 +80,17 @@ class Blockchain:
         a = retrieve('block_id', 'max', None, None, False)# convert to int
         b = Node.block_retrieve('block_id', 'max', None, None, False)#convert to int
         while a[0] < b[0]:
-            x = retrieve('block_id', 'max', None, None, False)#convert to int
-            data = Node.block_retrieve('*', None, 'block_id', x[0]+1, False)
-            insert(bytes(data[0]), bytes(data[1]), bytes(data[2]), bytes(data[3]), bytes(data[4]))
+            x = retrieve('block_id', 'max', None, None, False)
+            data = Node.block_retrieve('*', None, 'block_id', x[0]+1, False)#convert x[0] to int
+            insert(data[0], bytearray(data[1], encoding='utf-8'), bytearray(data[2], encoding='utf-8'), bytearray(data[3], encoding='utf-8'), bytearray(data[4]))
             a = retrieve('block_id', 'max', None, None, False)#NO CONVERSION
         else:
             print("Updated")
         print("Updated")
     def genesis_block():
-        genhash = bytes('0000000000000000000000000000000000000000000000000000000000000000')
+        genhash = bytearray('0000000000000000000000000000000000000000000000000000000000000000')
         gendata = #transaction object
-        b = Block(bytes(0), genhash, gendata)
+        b = Block(0, genhash, gendata)
     def searchBlock():
         conn = sqlite3.connect('blockchain.db')#file path needed
         c = conn.cursor()
@@ -92,27 +107,26 @@ class Blockchain:
             c = conn.cursor()
             select_str = variable
             where_str = ''
+            if condition == 'min' or condition == 'max':
+                select_str = '{}({})'.format(condition.upper(), select_str)
+            else:
+                select_str = variable
             if location != None or location_value != None:
                 where_str = '{}'.format(location)
                 t = (location_value, )
-                if condition == 'min' or condition == 'max':
-                    select_str = '{}({})'.format(condition.upper(), select_str)
+                if is_like != True:
+                    c.execute('SELECT {} FROM accounts WHERE {} = ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
+                    a = c.fetchall()
+                elif is_like == True:
+                    c.execute('SELECT {} FROM accounts WHERE {} LIKE ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
+                    a = c.fetchall()
                 else:
-                    select_str = variable
-                    if location == None or location_value == None:
-                        if is_like != True:
-                            c.execute('SELECT {} FROM accounts WHERE {} = ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
-                            a = c.fetchall()
-                        elif is_like == True:
-                            c.execute('SELECT {} FROM accounts WHERE {} LIKE ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
-                            a = c.fetchall()
-                        else:
-                            raise Exceptions.RetrievalException('SQLite3ArgumentError', 'Invalid argument "{}"'.format(is_like))
-                    else:
-            c.execute('SELECT {} FROM accounts'.format(select_str))
-            a = c.fetchall()
+                    raise Exceptions.RetrievalException('SQLite3ArgumentError', 'Invalid argument "{}"'.format(is_like))
+            else:
+                c.execute('SELECT {} FROM accounts'.format(select_str))
+                a = c.fetchall()
             conn.close()
-            return a
+            return a# a is in byte form unless block_id
         except sqlite3.Error as er:
             raise Exceptions.RetrievalException('Error', er.__cause__)
         except sqlite3.DatabaseError as er:
@@ -130,7 +144,7 @@ class Blockchain:
         try:
             conn = sqlite3.connect('blockchain.db')#needs to specify file path
             c = conn.cursor()
-            t = (bytes(block_id), bytes(prevhash), bytes(data), bytes(block_hash), bytes(nonce))
+            t = (block_id, bytearray(prevhash, encoding='utf-8'), bytearray(data, encoding='utf-8'), bytearray(block_hash, encoding='utf-8'), bytes(nonce))
             c.execute('INSERT INTO blocks VALUES (?,?,?,?,?)', t)
             conn.commit()
             conn.close()

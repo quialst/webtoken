@@ -5,7 +5,7 @@ from ecdsa import SigningKey
 from ecdsa import SECP256k1
 import base58
 import sqlite3
-#13, 62, 84, 91, 117
+#13, 62, 84, 90, 117
 
 class Account:
     def insert(id_num, address, privkey, pubkey, sig, sigtext, balance):
@@ -35,14 +35,13 @@ class Account:
         c = conn.cursor()
         select_str = variable
         where_str = ''
-        if location != None or location_value != None:
-            where_str = '{}'.format(location)
-            t = (location_value, )
         if condition == 'min' or condition == 'max':
             select_str = '{}({})'.format(condition.upper(), select_str)
         else:
             select_str = variable
-        if location == None or location_value == None:
+        if location != None or location_value != None:
+            where_str = '{}'.format(location)
+            t = (location_value, )
             if is_like != True:
                 c.execute('SELECT {} FROM accounts WHERE {} = ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
                 a = c.fetchall()
@@ -63,7 +62,22 @@ class Account:
             c = conn.cursor()
             set_str = variable
             where_str = location
-            t = (bytes(value), bytes(location_value))
+            if isinstance(value, str):
+                if isinstance(location_value, str):
+                    t = (bytearray(value, encoding='utf-8'), bytearray(location_value, encoding='utf-8'))
+                elif isinstance(location_value, int):
+                    t = (bytearray(value, encoding='utf-8'), bytearray(location_value))
+                else:
+                    raise TypeError('Invalid update argument')
+            elif isinstance(value, int):
+                if isinstance(location_value, str):
+                    t = (bytearray(value, encoding='utf-8'), bytearray(location_value, encoding='utf-8'))
+                elif isinstance(location_value, int):
+                    t = (bytearray(value, encoding='utf-8'), bytearray(location_value))
+                else:
+                    raise TypeError('Invalid update argument')
+            else:
+                raise TypeError('Invalid update argument')
             c.execute('UPDATE accounts SET {} = ? WHERE {} = ?'.format(set_str, where_str), t)
             conn.commit()
             conn.close()
