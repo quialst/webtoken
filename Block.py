@@ -1,14 +1,16 @@
 from datetime import datetime
 import hashlib
 
+#9
+
 class Block:
     def __init__(self, block_id, prevhash, data):
-        self.block_id = block_id
-        self.timestamp = now()
-        self.prevhash = prevhash
-        self.data = data
-        self.hashdata = str(block_id) + str(prevhash) + str(data)
-        self.hash = hashlib.sha256(self.hashdata).digest()
+        self.block_id = bytes(block_id)
+        self.timestamp = bytes(now())#datetime has not attribute now fix
+        self.prevhash = bytes(prevhash)
+        self.data = bytes(data)
+        self.hashdata = bytes(str(block_id) + str(prevhash) + str(data))
+        self.hash = bytes(hashlib.sha256(self.hashdata).digest())
     def get_block_id(self):
         return self.block_id
     def get_timestamp(self):

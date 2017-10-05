@@ -5,14 +5,14 @@ from ecdsa import SigningKey
 from ecdsa import SECP256k1
 import base58
 import sqlite3
-
+#13, 62, 84, 91, 117
 
 class Account:
     def insert(id_num, address, privkey, pubkey, sig, sigtext, balance):
         try:
             conn = sqlite3.connect('wallet.db')#needs to specify file path
             c = conn.cursor()
-            t = (id_num, address, privkey, pubkey, sig, sigtext, balance)
+            t = (bytes(id_num), bytes(address), bytes(privkey), bytes(pubkey), bytes(sig), bytes(sigtext), bytes(balance))
             c.execute('INSERT INTO accounts VALUES (?,?,?,?,?,?,?)', t)
             conn.commit()
             conn.close()
@@ -63,7 +63,7 @@ class Account:
             c = conn.cursor()
             set_str = variable
             where_str = location
-            t = (value, location_value)
+            t = (bytes(value), bytes(location_value))
             c.execute('UPDATE accounts SET {} = ? WHERE {} = ?'.format(set_str, where_str), t)
             conn.commit()
             conn.close()
@@ -88,7 +88,7 @@ class Account:
         try:
             id_num = 0
             if exists():#if id_num exists
-                id_num = retrieve('id_num', 'max', None, None, False)
+                id_num = retrieve('id_num', 'max', None, None, False)#needs to be turned to int type
             sk = SigningKey.generate(curve=SECP256k1)# private ecdsa key
             vk = sk.get_verifying_key()# verifying key j4kiks
             sigtext = b"signature"
