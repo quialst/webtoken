@@ -95,8 +95,6 @@ class Account:
             conn.rollback()
             conn.close()
 
-    def exists():#NEEDS WORK
-        return False
 
     def new_address():
         try:
