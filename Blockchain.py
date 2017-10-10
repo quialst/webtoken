@@ -1,4 +1,5 @@
 import sqlite3
+import sys
 # update class needs exception handlers too
 
 #9, 41, 65, 66, 69, 77, 80, 84, 91, 131
@@ -13,6 +14,7 @@ class Blockchain:
             conn.commit()
             conn.close()
             update_chain()
+            sys.exit(0)
         except sqlite3.Error as er:
             print("""error: {}
             Blockchain creation failed""".format(er.__cause__))
@@ -36,6 +38,8 @@ class Blockchain:
         finally:
             conn.rollback()
             conn.close()
+            sys.exit(0)
+
     def update(variable, value, location, location_value):
         try:
             conn = sqlite3.connect('blockchain.db')#needs to specify file path
@@ -61,6 +65,7 @@ class Blockchain:
             c.execute('UPDATE blocks SET {} = ? WHERE {} = ?'.format(set_str, where_str), t)
             conn.commit()
             conn.close()
+            sys.exit(0)
         except sqlite3.Error as er:
             raise UpdateException('Error', er.__cause__)
         except sqlite3.DatabaseError as er:
@@ -74,7 +79,8 @@ class Blockchain:
         finally:
             conn.rollback()
             conn.close()
-    def update_chain():
+            sys.exit(0)
+    def update_chain():#add exception handlers
         conn = sqlite3.connect('blockchain.db')
         c = conn.cursor()
         a = retrieve('block_id', 'max', None, None, False)# convert to int
@@ -87,17 +93,25 @@ class Blockchain:
         else:
             print("Updated")
         print("Updated")
+        conn.commit()
+        conn.close()
+        sys.exit(0)
+
     def genesis_block():
         genhash = bytearray('0000000000000000000000000000000000000000000000000000000000000000')
         gendata = #transaction object
         b = Block(0, genhash, gendata)
+        sys.exit(0)
+
     def searchBlock():
         conn = sqlite3.connect('blockchain.db')#file path needed
         c = conn.cursor()
+        sys.exit(0)
 
     def replaceBlockchain():
         conn = sqlite3.connect('blockchain.db')#file path needed
         c = conn.cursor()
+        sys.exit(0)
 
     def searchTransaction():
 
@@ -127,6 +141,7 @@ class Blockchain:
                 a = c.fetchall()
             conn.close()
             return a# a is in byte form unless block_id
+            sys.exit(0)
         except sqlite3.Error as er:
             raise Exceptions.RetrievalException('Error', er.__cause__)
         except sqlite3.DatabaseError as er:
@@ -140,6 +155,8 @@ class Blockchain:
         finally:
             conn.rollback()
             conn.close()
+            sys.exit(0)
+
     def insert(block_id, prevhash, data, block_hash, nonce):
         try:
             conn = sqlite3.connect('blockchain.db')#needs to specify file path
@@ -148,6 +165,7 @@ class Blockchain:
             c.execute('INSERT INTO blocks VALUES (?,?,?,?,?)', t)
             conn.commit()
             conn.close()
+            sys.exit(0)
         except sqlite3.Error as er:
             raise Exceptions.InsertException('Error', er.__cause__)
         except sqlite3.DatabaseError as er:
@@ -161,3 +179,4 @@ class Blockchain:
         finally:
             conn.rollback()
             conn.close()
+            sys.exit(0)

@@ -5,6 +5,7 @@ from ecdsa import SigningKey
 from ecdsa import SECP256k1
 import base58
 import sqlite3
+import sys
 #13, 62, 84, 90, 117
 
 class Account:
@@ -16,6 +17,7 @@ class Account:
             c.execute('INSERT INTO accounts VALUES (?,?,?,?,?,?,?)', t)
             conn.commit()
             conn.close()
+            sys.exit(0)
         except sqlite3.Error as er:
             raise Exceptions.InsertException('Error', er.__cause__)
         except sqlite3.DatabaseError as er:
@@ -29,6 +31,7 @@ class Account:
         finally:
             conn.rollback()
             conn.close()
+            sys.exit(0)
 
     def retrieve(variable, condition, location, location_value, is_like):#usage variable(desired data) condition(min max or none) location(WHERE variable) location (WHERE variable value) is_like(LIKE clause desired)
         conn = sqlite3.connect('wallet.db')
@@ -55,6 +58,8 @@ class Account:
             a = c.fetchall()
         conn.close()
         return a#a is in bytes if not block_id
+        sys.exit(0)
+
     def update(variable, value, location, location_value):
         """variable is the variably you want to change. value is the desired value for the variable"""
         try:
@@ -81,6 +86,7 @@ class Account:
             c.execute('UPDATE accounts SET {} = ? WHERE {} = ?'.format(set_str, where_str), t)
             conn.commit()
             conn.close()
+            sys.exit(0)
         except sqlite3.Error as er:
             raise Exceptions.RetrievalException('Error', er.__cause__)
         except sqlite3.DatabaseError as er:
@@ -94,7 +100,7 @@ class Account:
         finally:
             conn.rollback()
             conn.close()
-
+            sys.exit(0)
 
     def new_address():
         try:
@@ -119,7 +125,7 @@ class Account:
             address = base58.b58encode(s6)# do a base58 encode
             id_num = id_num + 1
             insert(id_num, address, sk, vk, sig, sigtext, 0)
-
+            sys.exit(0)
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Wallet creation stopped")
         except EOFError:
@@ -128,6 +134,9 @@ class Account:
             print("""InsertException: Database insert failed
             {}: {}
             Wallet creation failed""".format(er.error, er.__cause__))
+        finally:
+            sys.exit(0)
+
     def create_wallet():
         try:
             conn = sqlite3.connect('wallet.db')#needs to specify file path
@@ -161,3 +170,4 @@ class Account:
         finally:
             conn.rollback()
             conn.close()
+            sys.exit(0)
