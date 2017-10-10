@@ -6,6 +6,7 @@ from ecdsa import SECP256k1
 import base58
 import sqlite3
 import sys
+import subprocess
 #13, 62, 84, 90, 117
 
 class Account:

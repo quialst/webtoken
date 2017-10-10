@@ -1,5 +1,6 @@
 import sqlite3
 import sys
+import subprocess
 # update class needs exception handlers too
 
 #9, 41, 65, 66, 69, 77, 80, 84, 91, 131
