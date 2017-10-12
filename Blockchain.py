@@ -1,6 +1,6 @@
 import sqlite3
 import sys
-import subprocess
+from subprocess import check_output
 # update class needs exception handlers too
 
 #9, 41, 65, 66, 69, 77, 80, 84, 91, 131
@@ -8,7 +8,9 @@ import subprocess
 class Blockchain:
     def create_blockchain():
         try:
-            conn = sqlite3.connect('blockchain.db')# needs file path
+            co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
+            conn = sqlite3.connect(co+'/blockchain.db')# needs file path
+            del co
             c = conn.cursor()
             c.execute('''CREATE TABLE blocks
             (block_id INTEGER PRIMARY KEY, prevhash BLOB NOT NULL, data BLOB NOT NULL, block_hash BLOB NOT NULL, nonce BLOB NOT NULL)''')
@@ -43,7 +45,9 @@ class Blockchain:
 
     def update(variable, value, location, location_value):
         try:
-            conn = sqlite3.connect('blockchain.db')#needs to specify file path
+            co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
+            conn = sqlite3.connect(co+'/blockchain.db')#needs to specify file path
+            del co
             c = conn.cursor()
             set_str = variable
             where_str = location
@@ -82,7 +86,9 @@ class Blockchain:
             conn.close()
             sys.exit(0)
     def update_chain():#add exception handlers
-        conn = sqlite3.connect('blockchain.db')
+        co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
+        conn = sqlite3.connect(co+'/blockchain.db')
+        del co
         c = conn.cursor()
         a = retrieve('block_id', 'max', None, None, False)# convert to int
         b = Node.block_retrieve('block_id', 'max', None, None, False)#convert to int
@@ -105,12 +111,16 @@ class Blockchain:
         sys.exit(0)
 
     def searchBlock():
-        conn = sqlite3.connect('blockchain.db')#file path needed
+        co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
+        conn = sqlite3.connect(co+'/blockchain.db')#file path needed
+        del co
         c = conn.cursor()
         sys.exit(0)
 
     def replaceBlockchain():
-        conn = sqlite3.connect('blockchain.db')#file path needed
+        co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
+        conn = sqlite3.connect(co+'/blockchain.db')#file path needed
+        del co
         c = conn.cursor()
         sys.exit(0)
 
@@ -118,7 +128,9 @@ class Blockchain:
 
     def retrieve(variable, condition, location, location_value, is_like):
         try:
-            conn = sqlite3.connect('blockchain.db')#file path need
+            co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
+            conn = sqlite3.connect(co+'/blockchain.db')#file path need
+            del co
             c = conn.cursor()
             select_str = variable
             where_str = ''
@@ -160,7 +172,9 @@ class Blockchain:
 
     def insert(block_id, prevhash, data, block_hash, nonce):
         try:
-            conn = sqlite3.connect('blockchain.db')#needs to specify file path
+            co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
+            conn = sqlite3.connect(co+'/blockchain.db')#needs to specify file path
+            del co
             c = conn.cursor()
             t = (block_id, bytearray(prevhash, encoding='utf-8'), bytearray(data, encoding='utf-8'), bytearray(block_hash, encoding='utf-8'), bytes(nonce))
             c.execute('INSERT INTO blocks VALUES (?,?,?,?,?)', t)

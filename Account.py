@@ -6,13 +6,15 @@ from ecdsa import SECP256k1
 import base58
 import sqlite3
 import sys
-import subprocess
+from subprocess import check_output
 #13, 62, 84, 90, 117
 
 class Account:
     def insert(id_num, address, privkey, pubkey, sig, sigtext, balance):
         try:
-            conn = sqlite3.connect('wallet.db')#needs to specify file path
+            co = check_output(["echo", "-n", "$WALLET_DB"]).decode('utf-8')#this does not echo the right variable
+            conn = sqlite3.connect(co+'/wallet.db')#needs to specify file path
+            del co
             c = conn.cursor()
             t = (id_num, bytearray(address, endocing='utf-8'), bytearray(privkey, endocing='utf-8'), bytearray(pubkey, endocing='utf-8'), bytearray(sig, endocing='utf-8'), bytearray(sigtext, endocing='utf-8'), bytearray(balance, endocing='utf-8'))
             c.execute('INSERT INTO accounts VALUES (?,?,?,?,?,?,?)', t)
@@ -35,7 +37,9 @@ class Account:
             sys.exit(0)
 
     def retrieve(variable, condition, location, location_value, is_like):#usage variable(desired data) condition(min max or none) location(WHERE variable) location (WHERE variable value) is_like(LIKE clause desired)
-        conn = sqlite3.connect('wallet.db')
+        co = check_output(["echo", "-n", "$WALLET_DB"]).decode('utf-8')#this does not echo the right variable
+        conn = sqlite3.connect(co+'/wallet.db')
+        del co
         c = conn.cursor()
         select_str = variable
         where_str = ''
@@ -64,7 +68,9 @@ class Account:
     def update(variable, value, location, location_value):
         """variable is the variably you want to change. value is the desired value for the variable"""
         try:
-            conn = sqlite3.connect('wallet.db')#needs to specify file path
+            co = check_output(["echo", "-n", "$WALLET_DB"]).decode('utf-8')#this does not echo the right variable
+            conn = sqlite3.connect(co+'/wallet.db')#needs to specify file path
+            del co
             c = conn.cursor()
             set_str = variable
             where_str = location
@@ -140,7 +146,9 @@ class Account:
 
     def create_wallet():
         try:
-            conn = sqlite3.connect('wallet.db')#needs to specify file path
+            co = check_output(["echo", "-n", "$WALLET_DB"]).decode('utf-8')#this does not echo the right variable
+            conn = sqlite3.connect(co+'/wallet.db')#needs to specify file path
+            del co
             c = conn.cursor()
             c.execute('''CREATE TABLE accounts
             (id_num INTEGER PRIMARY KEY ASC, address BLOB NOT NULL, privkey BLOB NOT NULL,
