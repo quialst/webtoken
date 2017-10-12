@@ -23,3 +23,15 @@ class UpdateException(Exception):
         self.error = error
         self.message = message
     __cause__ = self.message
+class BlockError(Exception):
+    def __init__(self, error, message):
+        Exception.__init(self)
+        self.error = message
+        self.message = message
+    __cause__ = self.message
+class TransactionError(Exception):
+    def __init__(self, error, message):
+        Exception.__init(self)
+        self.error = message
+        self.message = message
+    __cause__ = self.message
