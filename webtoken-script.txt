@@ -12,8 +12,3 @@ pip3 install base58
 
 #config filesystem tree
 mkdir webtoken
-PWD = `pwd`
-#check concatenation syntax
-export WEBTOKEN_DIR=PWD/webtoken
-export BLOCKCHAIN_DB=${WEBTOKEN_DIR}/blockchain.db
-export WALLET_DB=${WEBTOKEN_DIR}/wallet.db
