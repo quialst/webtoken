@@ -45,8 +45,8 @@ class Blockchain:
 
     def update(variable, value, location, location_value):
         try:
-            co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
-            conn = sqlite3.connect(co+'/blockchain.db')#needs to specify file path
+            co = check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')#this does not echo the right variable
+            conn = sqlite3.connect(co)#needs to specify file path
             del co
             c = conn.cursor()
             set_str = variable
@@ -85,51 +85,10 @@ class Blockchain:
             conn.rollback()
             conn.close()
             sys.exit(0)
-    def update_chain():#add exception handlers
-        co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
-        conn = sqlite3.connect(co+'/blockchain.db')
-        del co
-        c = conn.cursor()
-        a = retrieve('block_id', 'max', None, None, False)# convert to int
-        b = Node.block_retrieve('block_id', 'max', None, None, False)#convert to int
-        while a[0] < b[0]:
-            x = retrieve('block_id', 'max', None, None, False)
-            data = Node.block_retrieve('*', None, 'block_id', x[0]+1, False)#convert x[0] to int
-            insert(data[0], bytearray(data[1], encoding='utf-8'), bytearray(data[2], encoding='utf-8'), bytearray(data[3], encoding='utf-8'), bytearray(data[4]))
-            a = retrieve('block_id', 'max', None, None, False)#NO CONVERSION
-        else:
-            print("Updated")
-        print("Updated")
-        conn.commit()
-        conn.close()
-        sys.exit(0)
-
-    def genesis_block():
-        genhash = bytearray('0000000000000000000000000000000000000000000000000000000000000000')
-        gendata = #transaction object
-        b = Block(0, genhash, gendata)
-        sys.exit(0)
-
-    def searchBlock():
-        co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
-        conn = sqlite3.connect(co+'/blockchain.db')#file path needed
-        del co
-        c = conn.cursor()
-        sys.exit(0)
-
-    def replaceBlockchain():
-        co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
-        conn = sqlite3.connect(co+'/blockchain.db')#file path needed
-        del co
-        c = conn.cursor()
-        sys.exit(0)
-
-    def searchTransaction():
-
     def retrieve(variable, condition, location, location_value, is_like):
         try:
-            co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
-            conn = sqlite3.connect(co+'/blockchain.db')#file path need
+            co = check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')#this does not echo the right variable
+            conn = sqlite3.connect(co)#file path need
             del co
             c = conn.cursor()
             select_str = variable
@@ -169,11 +128,10 @@ class Blockchain:
             conn.rollback()
             conn.close()
             sys.exit(0)
-
     def insert(block_id, prevhash, data, block_hash, nonce):
         try:
-            co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
-            conn = sqlite3.connect(co+'/blockchain.db')#needs to specify file path
+            co = check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')#this does not echo the right variable
+            conn = sqlite3.connect(co)#needs to specify file path
             del co
             c = conn.cursor()
             t = (block_id, bytearray(prevhash, encoding='utf-8'), bytearray(data, encoding='utf-8'), bytearray(block_hash, encoding='utf-8'), bytes(nonce))
@@ -195,3 +153,44 @@ class Blockchain:
             conn.rollback()
             conn.close()
             sys.exit(0)
+
+    def update_chain():#add exception handlers
+        co = check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')#this does not echo the right variable
+        conn = sqlite3.connect(co)
+        del co
+        c = conn.cursor()
+        a = retrieve('block_id', 'max', None, None, False)# convert to int
+        b = Node.block_retrieve('block_id', 'max', None, None, False)#convert to int
+        while a[0] < b[0]:
+            x = retrieve('block_id', 'max', None, None, False)
+            data = Node.block_retrieve('*', None, 'block_id', x[0]+1, False)#convert x[0] to int
+            insert(data[0], bytearray(data[1], encoding='utf-8'), bytearray(data[2], encoding='utf-8'), bytearray(data[3], encoding='utf-8'), bytearray(data[4]))
+            a = retrieve('block_id', 'max', None, None, False)#NO CONVERSION
+        else:
+            print("Updated")
+        print("Updated")
+        conn.commit()
+        conn.close()
+        sys.exit(0)
+
+    def genesis_block():
+        genhash = bytearray('0000000000000000000000000000000000000000000000000000000000000000')
+        gendata = #transaction object
+        b = Block(0, genhash, gendata)
+        sys.exit(0)
+
+    def searchBlock():
+        co = check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')#this does not echo the right variable
+        conn = sqlite3.connect(co)#file path needed
+        del co
+        c = conn.cursor()
+        sys.exit(0)
+
+    def replaceBlockchain():
+        co = check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')#this does not echo the right variable
+        conn = sqlite3.connect(co)#file path needed
+        del co
+        c = conn.cursor()
+        sys.exit(0)
+
+    def searchTransaction():

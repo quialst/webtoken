@@ -10,9 +10,46 @@ from subprocess import check_output
 #13, 62, 84, 90, 117
 
 class Account:
+    def create_wallet():
+        try:
+            co = check_output(["find", "`pwd`", "-name", "wallet.db"]).decode('utf-8')#this does not echo the right variable
+            conn = sqlite3.connect(co+'/wallet.db')#needs to specify file path
+            del co
+            c = conn.cursor()
+            c.execute('''CREATE TABLE accounts
+            (id_num INTEGER PRIMARY KEY ASC, address BLOB NOT NULL, privkey BLOB NOT NULL,
+            pubkey BLOB NOT NULL, sig BLOB NOT NULL, sigtext, BLOB NOT NULL, balance BLOB)''')
+            new_wallet()
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as er:
+            print("""error: {}
+            Wallet creation failed""".format(er.__cause__))
+        except sqlite3.DatabaseError as er:
+            print("""error: {}
+            Wallet creation failed""".format(er.__cause__))
+        except sqlite3.IntegrityError as er:
+            print("""error: {}
+            Wallet creation failed""".format(er.__cause__))
+        except sqlite3.ProgrammingError as er:
+            print("""error: {}
+            Wallet creation failed""".format(er.__cause__))
+        except KeyboardInterrupt:
+            print("KeyboardInterrupt: Wallet creation stopped")
+        except EOFError:
+            print("EOFError: Unexpected end of file")
+        except InsertException as er:
+            print("""InsertException: Database insert failed
+            {}: {}
+            Wallet creation failed""".format(er.error, er.__cause__))
+        finally:
+            conn.rollback()
+            conn.close()
+            sys.exit(0)
+
     def insert(id_num, address, privkey, pubkey, sig, sigtext, balance):
         try:
-            co = check_output(["echo", "-n", "$WALLET_DB"]).decode('utf-8')#this does not echo the right variable
+            co = check_output(["find", "`pwd`", "-name", "wallet.db"]).decode('utf-8')#this does not echo the right variable#this does not echo the right variable
             conn = sqlite3.connect(co+'/wallet.db')#needs to specify file path
             del co
             c = conn.cursor()
@@ -37,7 +74,7 @@ class Account:
             sys.exit(0)
 
     def retrieve(variable, condition, location, location_value, is_like):#usage variable(desired data) condition(min max or none) location(WHERE variable) location (WHERE variable value) is_like(LIKE clause desired)
-        co = check_output(["echo", "-n", "$WALLET_DB"]).decode('utf-8')#this does not echo the right variable
+        co = check_output(["find", "`pwd`", "-name", "wallet.db"]).decode('utf-8')#this does not echo the right variable#this does not echo the right variable
         conn = sqlite3.connect(co+'/wallet.db')
         del co
         c = conn.cursor()
@@ -68,7 +105,7 @@ class Account:
     def update(variable, value, location, location_value):
         """variable is the variably you want to change. value is the desired value for the variable"""
         try:
-            co = check_output(["echo", "-n", "$WALLET_DB"]).decode('utf-8')#this does not echo the right variable
+            co = check_output(["find", "`pwd`", "-name", "wallet.db"]).decode('utf-8')#this does not echo the right variable#this does not echo the right variable
             conn = sqlite3.connect(co+'/wallet.db')#needs to specify file path
             del co
             c = conn.cursor()
@@ -142,41 +179,4 @@ class Account:
             {}: {}
             Wallet creation failed""".format(er.error, er.__cause__))
         finally:
-            sys.exit(0)
-
-    def create_wallet():
-        try:
-            co = check_output(["echo", "-n", "$WALLET_DB"]).decode('utf-8')#this does not echo the right variable
-            conn = sqlite3.connect(co+'/wallet.db')#needs to specify file path
-            del co
-            c = conn.cursor()
-            c.execute('''CREATE TABLE accounts
-            (id_num INTEGER PRIMARY KEY ASC, address BLOB NOT NULL, privkey BLOB NOT NULL,
-            pubkey BLOB NOT NULL, sig BLOB NOT NULL, sigtext, BLOB NOT NULL, balance BLOB)''')
-            new_wallet()
-            conn.commit()
-            conn.close()
-        except sqlite3.Error as er:
-            print("""error: {}
-            Wallet creation failed""".format(er.__cause__))
-        except sqlite3.DatabaseError as er:
-            print("""error: {}
-            Wallet creation failed""".format(er.__cause__))
-        except sqlite3.IntegrityError as er:
-            print("""error: {}
-            Wallet creation failed""".format(er.__cause__))
-        except sqlite3.ProgrammingError as er:
-            print("""error: {}
-            Wallet creation failed""".format(er.__cause__))
-        except KeyboardInterrupt:
-            print("KeyboardInterrupt: Wallet creation stopped")
-        except EOFError:
-            print("EOFError: Unexpected end of file")
-        except InsertException as er:
-            print("""InsertException: Database insert failed
-            {}: {}
-            Wallet creation failed""".format(er.error, er.__cause__))
-        finally:
-            conn.rollback()
-            conn.close()
             sys.exit(0)
