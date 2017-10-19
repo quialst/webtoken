@@ -12,3 +12,6 @@ pip3 install base58
 
 #config filesystem tree
 mkdir webtoken
+cd webtoken
+touch wallet.db
+touch blockchain.db

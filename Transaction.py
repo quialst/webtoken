@@ -26,7 +26,7 @@ class Transaction:
                 raise TransactionError
         return x
 
-    def __init__(self, from_address, dest, amount, transaction_type):
+    def __init__(self, from_address, dest, amount, transaction_type):# dest IS A TUPLE
         self.from_address = from_address
         self.num_of_dest = len(dest)
         #dest needs to include the from address as the first address in the tuple

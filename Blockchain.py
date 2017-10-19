@@ -175,6 +175,7 @@ class Blockchain:
 
     def genesis_block():
         genhash = bytearray('0000000000000000000000000000000000000000000000000000000000000000')
+        Transaction('0000000000000000000000000000000000000000000000000000000000000000',)
         gendata = #transaction object
         b = Block(0, genhash, gendata)
         sys.exit(0)

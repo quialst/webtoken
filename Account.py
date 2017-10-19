@@ -157,15 +157,15 @@ class Account:
             sk = SigningKey.generate(curve=SECP256k1)# private ecdsa key
             vk = sk.get_verifying_key()# verifying key j4kiks
             sigtext = b"signature"
-            sig = sk.sign(signature)
+            sig = sk.sign(sigtext)
             s1 = hashlib.sha256(sk.to_string()).digest()# sha hashing of public key in binary
             temp = hashlib.new('ripemd160')# make ripemd150 object
             temp.update(s1)# update the object
             s2 = temp.digest()# binary digest of ak
-            s3 = (b"0x00"+s2)# add the version byte to bk
+            s3 = (b'0'+s2)# add the version byte to bk
             s4 = hashlib.sha256(hashlib.sha256(s3).digest()).digest()# doulbe sha hash of ck
             s5 = s4[0:4]# take first 4 bytes
-            s6 = (ck+s5)# add 4 bytes to end of ck
+            s6 = (s3+s5)# add 4 bytes to end of ck
             address = base58.b58encode(s6)# do a base58 encode
             id_num = id_num + 1
             insert(id_num, address, sk, vk, sig, sigtext, 0)
