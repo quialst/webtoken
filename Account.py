@@ -7,13 +7,13 @@ import base58
 import sqlite3
 import sys
 from subprocess import check_output
-#13, 62, 84, 90, 117
+#TODO: sys.exit(0) should not be called for methods that are called by other methods
 
 class Account:
     def create_wallet():
         try:
-            co = check_output(["find", "`pwd`", "-name", "wallet.db"]).decode('utf-8')#this does not echo the right variable
-            conn = sqlite3.connect(co+'/wallet.db')#needs to specify file path
+            co = check_output(["find", "`pwd`", "-name", "wallet.db"]).decode('utf-8')#TODO: check_output is retunting an error
+            conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
             c.execute('''CREATE TABLE accounts
@@ -49,8 +49,8 @@ class Account:
 
     def insert(id_num, address, privkey, pubkey, sig, sigtext, balance):
         try:
-            co = check_output(["find", "`pwd`", "-name", "wallet.db"]).decode('utf-8')#this does not echo the right variable#this does not echo the right variable
-            conn = sqlite3.connect(co+'/wallet.db')#needs to specify file path
+            co = check_output(["find", "`pwd`", "-name", "wallet.db"]).decode('utf-8')
+            conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
             t = (id_num, bytearray(address, endocing='utf-8'), bytearray(privkey, endocing='utf-8'), bytearray(pubkey, endocing='utf-8'), bytearray(sig, endocing='utf-8'), bytearray(sigtext, endocing='utf-8'), bytearray(balance, endocing='utf-8'))
@@ -74,8 +74,8 @@ class Account:
             sys.exit(0)
 
     def retrieve(variable, condition, location, location_value, is_like):#usage variable(desired data) condition(min max or none) location(WHERE variable) location (WHERE variable value) is_like(LIKE clause desired)
-        co = check_output(["find", "`pwd`", "-name", "wallet.db"]).decode('utf-8')#this does not echo the right variable#this does not echo the right variable
-        conn = sqlite3.connect(co+'/wallet.db')
+        co = check_output(["find", "`pwd`", "-name", "wallet.db"]).decode('utf-8')
+        conn = sqlite3.connect(co)
         del co
         c = conn.cursor()
         select_str = variable
@@ -105,8 +105,8 @@ class Account:
     def update(variable, value, location, location_value):
         """variable is the variably you want to change. value is the desired value for the variable"""
         try:
-            co = check_output(["find", "`pwd`", "-name", "wallet.db"]).decode('utf-8')#this does not echo the right variable#this does not echo the right variable
-            conn = sqlite3.connect(co+'/wallet.db')#needs to specify file path
+            co = check_output(["find", "`pwd`", "-name", "wallet.db"]).decode('utf-8')
+            conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
             set_str = variable

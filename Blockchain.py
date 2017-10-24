@@ -1,15 +1,15 @@
 import sqlite3
 import sys
-from subprocess import check_output
-# update class needs exception handlers too
+import subprocess
+#TODO: sys.exit(0) should not be called for methods that are called by other methods
+#TODO: raising and error as er does not work. Learn how to use __cause__
 
-#9, 41, 65, 66, 69, 77, 80, 84, 91, 131
 
 class Blockchain:
     def create_blockchain():
         try:
-            co = check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#this does not echo the right variable
-            conn = sqlite3.connect(co+'/blockchain.db')# needs file path
+            co = subprocess.check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#TODO: this returns an error
+            conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
             c.execute('''CREATE TABLE blocks
@@ -45,8 +45,8 @@ class Blockchain:
 
     def update(variable, value, location, location_value):
         try:
-            co = check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')#this does not echo the right variable
-            conn = sqlite3.connect(co)#needs to specify file path
+            co = subprocess.check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')
+            conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
             set_str = variable
@@ -87,8 +87,8 @@ class Blockchain:
             sys.exit(0)
     def retrieve(variable, condition, location, location_value, is_like):
         try:
-            co = check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')#this does not echo the right variable
-            conn = sqlite3.connect(co)#file path need
+            co = subprocess.check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')
+            conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
             select_str = variable
@@ -130,8 +130,8 @@ class Blockchain:
             sys.exit(0)
     def insert(block_id, prevhash, data, block_hash, nonce):
         try:
-            co = check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')#this does not echo the right variable
-            conn = sqlite3.connect(co)#needs to specify file path
+            co = subprocess.check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')
+            conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
             t = (block_id, bytearray(prevhash, encoding='utf-8'), bytearray(data, encoding='utf-8'), bytearray(block_hash, encoding='utf-8'), bytes(nonce))
@@ -154,44 +154,66 @@ class Blockchain:
             conn.close()
             sys.exit(0)
 
-    def update_chain():#add exception handlers
-        co = check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')#this does not echo the right variable
-        conn = sqlite3.connect(co)
-        del co
-        c = conn.cursor()
-        a = retrieve('block_id', 'max', None, None, False)# convert to int
-        b = Node.block_retrieve('block_id', 'max', None, None, False)#convert to int
-        while a[0] < b[0]:
-            x = retrieve('block_id', 'max', None, None, False)
-            data = Node.block_retrieve('*', None, 'block_id', x[0]+1, False)#convert x[0] to int
-            insert(data[0], bytearray(data[1], encoding='utf-8'), bytearray(data[2], encoding='utf-8'), bytearray(data[3], encoding='utf-8'), bytearray(data[4]))
-            a = retrieve('block_id', 'max', None, None, False)#NO CONVERSION
-        else:
+    def update_chain():#TODO: needs exception handlers
+        try:
+            co = subprocess.check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')
+            conn = sqlite3.connect(co)
+            del co
+            c = conn.cursor()
+            a = retrieve('block_id', 'max', None, None, False)
+            b = Node.block_retrieve('block_id', 'max', None, None, False)
+            while a[0] < b[0]:
+                x = retrieve('block_id', 'max', None, None, False)
+                data = Node.block_retrieve('*', None, 'block_id', x[0]+1, False)
+                insert(data[0], bytearray(data[1], encoding='utf-8'), bytearray(data[2], encoding='utf-8'), bytearray(data[3], encoding='utf-8'), bytearray(data[4]))
+                a = retrieve('block_id', 'max', None, None, False)
+            else:
+                print("Updated")
             print("Updated")
-        print("Updated")
-        conn.commit()
-        conn.close()
-        sys.exit(0)
+            conn.commit()
+            conn.close()
+            sys.exit(0)
+        except sqlite3.Error as er:
+            raise Exceptions.UpdateChainException('Error', er.__cause__)
+        except sqlite3.DatabaseError as er:
+            raise Exceptions.UpdateChainException('DatabaseError', er.__cause__)
+        except sqlite3.IntegrityError as er:
+            raise Exceptions.UpdateChainException('IntegrityError', er.__cause__)
+        except sqlite3.ProgrammingError as er:
+            raise Exceptions.UpdateChainException('ProgrammingError', er.__cause__)
+        except Exceptions.InsertException as er:
+            raise Exceptions.UpdateChainException('InsertException', er.__cause__)
+        except subprocess.SubprocessError as er:
+            raise Exceptions.UpdateChainException('SubprocessError', er.__cause__)
+        except subprocess.TimeoutExpired as er:
+            raise Exceptions.UpdateChainException('TimeoutExpired', er.__cause__)
+        except subprocess.CalledProcessError as er:
+            raise Exceptions.UpdateChainException('CalledProcessError', er.__cause__)
+        except KeyboardInterrupt:
+            print("KeyboardInterrupt: Chain update stopped")
 
-    def genesis_block():
-        genhash = bytearray('0000000000000000000000000000000000000000000000000000000000000000')
-        Transaction('0000000000000000000000000000000000000000000000000000000000000000',)
-        gendata = #transaction object
-        b = Block(0, genhash, gendata)
-        sys.exit(0)
+    def genesis_block():#TODO: add exception handlers
+        try:
+            genhash = bytearray('0000000000000000000000000000000000000000000000000000000000000000')#TODO: make real hash
+            Transaction('0000000000000000000000000000000000000000000000000000000000000000',)
+            gendata = '000000000000000000000000000000000 - 5000000 > $$$\n$$$ - 5000000 > 16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM\n'
+            b = Block(0, genhash, gendata)
+            sys.exit(0)
 
     def searchBlock():
-        co = check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')#this does not echo the right variable
-        conn = sqlite3.connect(co)#file path needed
-        del co
-        c = conn.cursor()
-        sys.exit(0)
+        try:
+            co = subprocess.check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')
+            conn = sqlite3.connect(co)
+            del co
+            c = conn.cursor()
+            sys.exit(0)
 
     def replaceBlockchain():
-        co = check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')#this does not echo the right variable
-        conn = sqlite3.connect(co)#file path needed
-        del co
-        c = conn.cursor()
-        sys.exit(0)
+        try:
+            co = subprocess.check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')
+            conn = sqlite3.connect(co)
+            del co
+            c = conn.cursor()
+            sys.exit(0)
 
     def searchTransaction():

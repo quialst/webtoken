@@ -1,4 +1,6 @@
 
+#TODO: add update chain Exception
+
 class RetrievalException(Exception):
     def __init__(self, error, message):
         Exception.__init__(self)
