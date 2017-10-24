@@ -162,7 +162,7 @@ class Account:
             temp = hashlib.new('ripemd160')# make ripemd150 object
             temp.update(s1)# update the object
             s2 = temp.digest()# binary digest of ak
-            s3 = (b'0'+s2)# add the version byte to bk
+            s3 = (b'\x30'+s2)# add the version byte to bk
             s4 = hashlib.sha256(hashlib.sha256(s3).digest()).digest()# doulbe sha hash of ck
             s5 = s4[0:4]# take first 4 bytes
             s6 = (s3+s5)# add 4 bytes to end of ck
