@@ -4,7 +4,6 @@ from time import struct_time
 import hashlib
 
 #TODO: add parsing of dest tuple for hashing and to_string
-#TODO: turn all data into bytearray
 #TODO: replace bytearray() with str(<variable>).encode('utf-8')
 
 class Transaction:
@@ -38,16 +37,16 @@ class Transaction:
         return parsed
 
     def __init__(self, from_address, dest, amount, transaction_type):# dest IS A TUPLE
-        self.from_address = bytearray(from_address, encoding='utf-8')
-        self.num_of_dest = bytearray(len(dest), encoding='utf-8')
+        self.from_address = str(from_address).encode()
+        self.num_of_dest = str(len(dest)).encode()
         #dest needs to include the from address as the first address in the tuple
-        self.dest = bytearray(parse_dest(dest), encoding='utf-8')#dest is a tuple of to addresses.
-        self.amount = bytearray(amount, encoding='utf-8')
-        self.transaction_type = bytearray(transaction_type, encoding='utf-8')
-        self.timestamp = bytearray(get_timestamp(), encoding='utf-8')
+        self.dest = str(parse_dest(dest)).encode()#dest is a tuple of to addresses.
+        self.amount = str(amount).encode()
+        self.transaction_type = str(transaction_type).encode()
+        self.timestamp = str(get_timestamp()).encode()
         #TODO: add hashing of data
         self.trans_hash = hashlib.sha256().digest()
-        self.data = to_string(self.trans_hash, self.from_address, self.num_of_dest, dest, self.amount, self.transaction_type, self.timestamp)
+        self.data = to_string(self.trans_hash.decode(), self.from_address.decode(), self.num_of_dest.decode(), dest, self.amount.decode(), self.transaction_type.decode(), self.timestamp.decode())
 
     def get_from_address(self):
         return self.from_address

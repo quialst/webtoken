@@ -56,7 +56,7 @@ class Blockchain:
             del co
             c = conn.cursor()
             set_str = variable
-            where_str = location
+            where_str = location#TODO: make byte encoding depend on id_num. it location is id_num then dont encode
             if isinstance(value, str):
                 if isinstance(location_value, str):
                     t = (bytearray(value, encoding='utf-8'), bytearray(location_value, encoding='utf-8'))
@@ -140,7 +140,7 @@ class Blockchain:
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
-            t = (block_id, bytearray(prevhash, encoding='utf-8'), bytearray(data, encoding='utf-8'), bytearray(block_hash, encoding='utf-8'), bytes(nonce))
+            t = (block_id, prevhash.encode(), data.encode(), block_hash.encode(), nonce.encode())
             c.execute('INSERT INTO blocks VALUES (?,?,?,?,?)', t)
             conn.commit()
             conn.close()
@@ -171,7 +171,7 @@ class Blockchain:
             while a[0] < b[0]:
                 x = retrieve('block_id', 'max', None, None, False)
                 data = Node.block_retrieve('*', None, 'block_id', x[0]+1, False)
-                insert(data[0], bytearray(data[1], encoding='utf-8'), bytearray(data[2], encoding='utf-8'), bytearray(data[3], encoding='utf-8'), bytearray(data[4]))
+                insert(data[0], data[1].encode(), data[2].encode(), data[3].encode(), data[4].encode())
                 a = retrieve('block_id', 'max', None, None, False)
             else:
                 print("Updated")

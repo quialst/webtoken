@@ -40,10 +40,6 @@ class Account:
             print("KeyboardInterrupt: Wallet creation stopped")
         except EOFError:
             print("EOFError: Unexpected end of file")
-        except InsertException as er:
-            print("""InsertException: Database insert failed
-            {}: {}
-            Wallet creation failed""".format(er.error, er.__cause__))
         finally:
             conn.rollback()
             conn.close()
@@ -55,7 +51,7 @@ class Account:
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
-            t = (id_num, bytearray(address, endocing='utf-8'), bytearray(privkey, endocing='utf-8'), bytearray(pubkey, endocing='utf-8'), bytearray(sig, endocing='utf-8'), bytearray(sigtext, endocing='utf-8'), bytearray(balance, endocing='utf-8'))
+            t = (id_num, address.encode(), privkey.encode(), pubkey.encode(), sig.encode(), sigtext.encode(), balance.encode())
             c.execute('INSERT INTO accounts VALUES (?,?,?,?,?,?,?)', t)
             conn.commit()
             conn.close()
@@ -112,7 +108,7 @@ class Account:
             del co
             c = conn.cursor()
             set_str = variable
-            where_str = location
+            where_str = location#TODO: make byte encoding depend on id_num. it location is id_num then dont encode
             if isinstance(value, str):
                 if isinstance(location_value, str):
                     t = (bytearray(value, encoding='utf-8'), bytearray(location_value, encoding='utf-8'))

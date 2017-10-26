@@ -17,11 +17,11 @@ class Block:
 
     def __init__(self, block_id, prevhash, data):
         self.block_id = block_id
-        self.timestamp = bytearray(get_timestamp(), encoding='utf-8')#datetime has not attribute now fix
-        self.prevhash = bytearray(prevhash, encoding='utf-8')
-        self.data = bytearray(data, encoding='utf-8')
-        self.hashdata = bytearray(str(block_id) + str(prevhash) + str(data), encoding='utf-8')
-        self.hash = bytearray(hashlib.sha256(self.hashdata).hexdigest(), encoding='utf-8')
+        self.timestamp = str(get_timestamp()).encode()
+        self.prevhash = str(prevhash).encode()
+        self.data = str(data).encode()
+        self.hashdata = (str(block_id) + str(prevhash) + str(data)).encode()
+        self.hash = hashlib.sha256(self.hashdata.encode()).digest()
     def get_block_id(self):
         return self.block_id
     def get_timestamp(self):
