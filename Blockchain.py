@@ -1,14 +1,20 @@
 import sqlite3
 import sys
 import subprocess
+from time import localtime
+from time import time
+from time import struct_time
+import os
 #TODO: sys.exit(0) should not be called for methods that are called by other methods
 #TODO: raising and error as er does not work. Learn how to use __cause__
+#TODO: replace bytearray() with str(<variable>).encode('utf-8')
+#TODO: use type to verify that the database is a sqlite database
 
 
 class Blockchain:
     def create_blockchain():
         try:
-            co = subprocess.check_output(["echo", "-n", "$BLOCKCHAIN_DB"]).decode('utf-8')#TODO: this returns an error
+            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()#TODO: this returns an error
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
@@ -45,7 +51,7 @@ class Blockchain:
 
     def update(variable, value, location, location_value):
         try:
-            co = subprocess.check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')
+            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
@@ -87,7 +93,7 @@ class Blockchain:
             sys.exit(0)
     def retrieve(variable, condition, location, location_value, is_like):
         try:
-            co = subprocess.check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')
+            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
@@ -130,7 +136,7 @@ class Blockchain:
             sys.exit(0)
     def insert(block_id, prevhash, data, block_hash, nonce):
         try:
-            co = subprocess.check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')
+            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
@@ -156,7 +162,7 @@ class Blockchain:
 
     def update_chain():#TODO: needs exception handlers
         try:
-            co = subprocess.check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')
+            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
@@ -202,7 +208,7 @@ class Blockchain:
 
     def searchBlock():
         try:
-            co = subprocess.check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')
+            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
@@ -210,7 +216,7 @@ class Blockchain:
 
     def replaceBlockchain():
         try:
-            co = subprocess.check_output(["find", "`pwd`", "-name", "blockchain.db"]).decode('utf-8')
+            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
