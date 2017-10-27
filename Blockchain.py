@@ -56,19 +56,39 @@ class Blockchain:
             del co
             c = conn.cursor()
             set_str = variable
-            where_str = location#TODO: make byte encoding depend on id_num. it location is id_num then dont encode
+            where_str = location
             if isinstance(value, str):
                 if isinstance(location_value, str):
-                    t = (bytearray(value, encoding='utf-8'), bytearray(location_value, encoding='utf-8'))
+                    if location != 'block_id':
+                        t = (value.encode(), location_value.encode)
+                    elif location == 'block_id':
+                        t = (value, location_value)
+                    else:
+                        raise TypeError('Invalid update argument')
                 elif isinstance(location_value, int):
-                    t = (bytearray(value, encoding='utf-8'), bytearray(location_value))
+                    if location != 'block_id':
+                        t = (value.encode(), bytes(location_value))
+                    elif location == 'block_id':
+                        t = (value, location_value)
+                    else:
+                        raise TypeError('Invalid update argument')
                 else:
                     raise TypeError('Invalid update argument')
             elif isinstance(value, int):
                 if isinstance(location_value, str):
-                    t = (bytearray(value, encoding='utf-8'), bytearray(location_value, encoding='utf-8'))
+                    if location != 'block_id':
+                        t = (bytes(value), location_value.encode)
+                    elif location == 'block_id':
+                        t = (value, location)
+                    else:
+                        raise TypeError('Invalid update argument')
                 elif isinstance(location_value, int):
-                    t = (bytearray(value, encoding='utf-8'), bytearray(location_value))
+                    if location != 'block_id':
+                        t = (bytes(value), bytes(location_value))
+                    elif location == 'block_id':
+                        t = (value, location)
+                    else:
+                        raise TypeError('Invalid update argument')
                 else:
                     raise TypeError('Invalid update argument')
             else:
