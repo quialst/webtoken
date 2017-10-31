@@ -10,18 +10,17 @@ from subprocess import check_output
 import os
 #TODO: sys.exit(0) should not be called for methods that are called by other methods
 #TODO: use type to verify that the database is a sqlite database
-
+Account.create_wallet()
 class Account:
+    @staticmethod
     def create_wallet():
         try:
-            co = check_output(["find", os.getcwd(), "-name", "wallet.db"]).strip()
-            conn = sqlite3.connect(co)
-            del co
+            conn = sqlite3.connect('wallet.db')
             c = conn.cursor()
             c.execute('''CREATE TABLE accounts
             (id_num INTEGER PRIMARY KEY ASC, address BLOB NOT NULL, privkey BLOB NOT NULL,
             pubkey BLOB NOT NULL, sig BLOB NOT NULL, sigtext, BLOB NOT NULL, balance BLOB)''')
-            new_wallet()
+            new_address()
             conn.commit()
             conn.close()
         except sqlite3.Error as er:
@@ -48,7 +47,7 @@ class Account:
     def insert(id_num, address, privkey, pubkey, sig, sigtext, balance):
         try:
             co = check_output(["find", os.getcwd(), "-name", "wallet.db"]).strip()
-            conn = sqlite3.connect(co)
+            conn = sqlite3.connect(str(co))
             del co
             c = conn.cursor()
             t = (id_num, address.encode(), privkey.encode(), pubkey.encode(), sig.encode(), sigtext.encode(), balance.encode())
@@ -73,7 +72,7 @@ class Account:
 
     def retrieve(variable, condition, location, location_value, is_like):#usage variable(desired data) condition(min max or none) location(WHERE variable) location (WHERE variable value) is_like(LIKE clause desired)
         co = check_output(["find", os.getcwd(), "-name", "wallet.db"]).strip()
-        conn = sqlite3.connect(co)
+        conn = sqlite3.connect(str(co))
         del co
         c = conn.cursor()
         select_str = variable
@@ -104,7 +103,7 @@ class Account:
         """variable is the variably you want to change. value is the desired value for the variable"""
         try:
             co = check_output(["find", os.getcwd(), "-name", "wallet.db"]).strip()
-            conn = sqlite3.connect(co)
+            conn = sqlite3.connect(str(co))
             del co
             c = conn.cursor()
             set_str = variable

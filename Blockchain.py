@@ -5,25 +5,25 @@ from time import localtime
 from time import time
 from time import struct_time
 import os
-#TODO: sys.exit(0) should not be called for methods that are called by other methods
+#TODO: add sqlite3.OperationalError exception handlers
+#TODO: should not be called for methods that are called by other methods
 #TODO: raising and error as er does not work. Learn how to use __cause__
 #TODO: replace bytearray() with str(<variable>).encode('utf-8')
 #TODO: use type to verify that the database is a sqlite database
+#TODO: insert is not working figure out why
 
 
 class Blockchain:
+    @staticmethod
     def create_blockchain():
         try:
-            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()#TODO: this returns an error
-            conn = sqlite3.connect(co)
-            del co
+            conn = sqlite3.connect('blockchain.db')
             c = conn.cursor()
             c.execute('''CREATE TABLE blocks
             (block_id INTEGER PRIMARY KEY, prevhash BLOB NOT NULL, data BLOB NOT NULL, block_hash BLOB NOT NULL, nonce BLOB NOT NULL)''')
             conn.commit()
             conn.close()
-            update_chain()
-            sys.exit(0)
+            #update_chain()
         except sqlite3.Error as er:
             print("""error: {}
             Blockchain creation failed""".format(er.__cause__))
@@ -40,20 +40,18 @@ class Blockchain:
             print("KeyboardInterrupt: Wallet creation stopped")
         except EOFError:
             print("EOFError: Unexpected end of file")
-        except InsertException as er:
+        except Exceptions.InsertException as er:
             print("""InsertException: Database insert failed
             {}: {}
             Blockchain creation failed""".format(er.error, er.__cause__))
         finally:
-            conn.rollback()
-            conn.close()
-            sys.exit(0)
+            """conn.rollback()
+            conn.close()"""
 
     def update(variable, value, location, location_value):
         try:
             co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
-            conn = sqlite3.connect(co)
-            del co
+            conn = sqlite3.connect(str(co))
             c = conn.cursor()
             set_str = variable
             where_str = location
@@ -96,7 +94,6 @@ class Blockchain:
             c.execute('UPDATE blocks SET {} = ? WHERE {} = ?'.format(set_str, where_str), t)
             conn.commit()
             conn.close()
-            sys.exit(0)
         except sqlite3.Error as er:
             raise UpdateException('Error', er.__cause__)
         except sqlite3.DatabaseError as er:
@@ -108,14 +105,14 @@ class Blockchain:
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Database update stopped")
         finally:
-            conn.rollback()
-            conn.close()
-            sys.exit(0)
+            """conn.rollback()
+            conn.close()"""
+
+    @staticmethod
     def retrieve(variable, condition, location, location_value, is_like):
         try:
             co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
-            conn = sqlite3.connect(co)
-            del co
+            conn = sqlite3.connect(str(co))
             c = conn.cursor()
             select_str = variable
             where_str = ''
@@ -139,7 +136,6 @@ class Blockchain:
                 a = c.fetchall()
             conn.close()
             return a# a is in byte form unless block_id
-            sys.exit(0)
         except sqlite3.Error as er:
             raise Exceptions.RetrievalException('Error', er.__cause__)
         except sqlite3.DatabaseError as er:
@@ -151,20 +147,20 @@ class Blockchain:
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Database insert stopped")
         finally:
-            conn.rollback()
-            conn.close()
-            sys.exit(0)
+            """conn.rollback()
+            conn.close()"""
+
+    @staticmethod
     def insert(block_id, prevhash, data, block_hash, nonce):
         try:
             co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
-            conn = sqlite3.connect(co)
-            del co
+            conn = sqlite3.connect(str(co))
             c = conn.cursor()
             t = (block_id, prevhash.encode(), data.encode(), block_hash.encode(), nonce.encode())
             c.execute('INSERT INTO blocks VALUES (?,?,?,?,?)', t)
             conn.commit()
             conn.close()
-            sys.exit(0)
+            #
         except sqlite3.Error as er:
             raise Exceptions.InsertException('Error', er.__cause__)
         except sqlite3.DatabaseError as er:
@@ -176,15 +172,14 @@ class Blockchain:
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Database insert stopped")
         finally:
-            conn.rollback()
-            conn.close()
-            sys.exit(0)
+            """conn.rollback()
+            conn.close()"""
 
-    def update_chain():#TODO: needs exception handlers
+
+    def update_chain():
         try:
             co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
-            conn = sqlite3.connect(co)
-            del co
+            conn = sqlite3.connect(str(co))
             c = conn.cursor()
             a = retrieve('block_id', 'max', None, None, False)
             b = Node.block_retrieve('block_id', 'max', None, None, False)
@@ -198,7 +193,6 @@ class Blockchain:
             print("Updated")
             conn.commit()
             conn.close()
-            sys.exit(0)
         except sqlite3.Error as er:
             raise Exceptions.UpdateChainException('Error', er.__cause__)
         except sqlite3.DatabaseError as er:
@@ -218,13 +212,13 @@ class Blockchain:
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Chain update stopped")
 
-    def genesis_block():#TODO: add exception handlers
+    """def genesis_block():#TODO: add exception handlers
         try:
             genhash = bytearray('0000000000000000000000000000000000000000000000000000000000000000')#TODO: make real hash
             Transaction('0000000000000000000000000000000000000000000000000000000000000000',)
             gendata = '000000000000000000000000000000000 - 5000000 > $$$\n$$$ - 5000000 > 16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM\n'
             b = Block(0, genhash, gendata)
-            sys.exit(0)
+
 
     def searchBlock():
         try:
@@ -232,7 +226,7 @@ class Blockchain:
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
-            sys.exit(0)
+
 
     def replaceBlockchain():
         try:
@@ -240,6 +234,8 @@ class Blockchain:
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
-            sys.exit(0)
-
-    def searchTransaction():
+            """
+#def searchTransaction():
+Blockchain.create_blockchain()
+Blockchain.insert(0, 'foo', 'bar', 'baq', 'qab')
+print(str(Blockchain.retrieve('block_id', None, None, None, None)))
