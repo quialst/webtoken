@@ -5,12 +5,13 @@ from time import localtime
 from time import time
 from time import struct_time
 import os
+import Exceptions
 #TODO: add sqlite3.OperationalError exception handlers
 #TODO: should not be called for methods that are called by other methods
 #TODO: raising and error as er does not work. Learn how to use __cause__
-#TODO: replace bytearray() with str(<variable>).encode('utf-8')
 #TODO: use type to verify that the database is a sqlite database
 #TODO: insert is not working figure out why
+#TODO: find out how to rollback a connection in a finally clause
 
 
 class Blockchain:
@@ -23,19 +24,19 @@ class Blockchain:
             (block_id INTEGER PRIMARY KEY, prevhash BLOB NOT NULL, data BLOB NOT NULL, block_hash BLOB NOT NULL, nonce BLOB NOT NULL)''')
             conn.commit()
             conn.close()
-            #update_chain()
+            update_chain()
         except sqlite3.Error as er:
             print("""error: {}
-            Blockchain creation failed""".format(er.__cause__))
+            Blockchain creation failed""".format(er.msg))
         except sqlite3.DatabaseError as er:
             print("""error: {}
-            Blockchain creation failed""".format(er.__cause__))
+            Blockchain creation failed""".format(er.msg))
         except sqlite3.IntegrityError as er:
             print("""error: {}
-            Blockchain creation failed""".format(er.__cause__))
+            Blockchain creation failed""".format(er.msg))
         except sqlite3.ProgrammingError as er:
             print("""error: {}
-            Blockchain creation failed""".format(er.__cause__))
+            Blockchain creation failed""".format(er.msg))
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Wallet creation stopped")
         except EOFError:
@@ -43,10 +44,10 @@ class Blockchain:
         except Exceptions.InsertException as er:
             print("""InsertException: Database insert failed
             {}: {}
-            Blockchain creation failed""".format(er.error, er.__cause__))
+            Blockchain creation failed""".format(er.error, er.msg))
         finally:
-            """conn.rollback()
-            conn.close()"""
+            conn.rollback()
+            conn.close()
 
     def update(variable, value, location, location_value):
         try:
@@ -95,18 +96,18 @@ class Blockchain:
             conn.commit()
             conn.close()
         except sqlite3.Error as er:
-            raise UpdateException('Error', er.__cause__)
+            raise UpdateException('Error', er.msg)
         except sqlite3.DatabaseError as er:
-            raise UpdateException('DatabaseError', er.__cause__)
+            raise UpdateException('DatabaseError', er.msg)
         except sqlite3.IntegrityError as er:
-            raise UpdateException('IntegrityError', er.__cause__)
+            raise UpdateException('IntegrityError', er.msg)
         except sqlite3.ProgrammingError as er:
-            raise UpdateException('ProgrammingError', er.__cause__)
+            raise UpdateException('ProgrammingError', er.msg)
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Database update stopped")
         finally:
-            """conn.rollback()
-            conn.close()"""
+            conn.rollback()
+            conn.close()
 
     @staticmethod
     def retrieve(variable, condition, location, location_value, is_like):
@@ -137,13 +138,13 @@ class Blockchain:
             conn.close()
             return a# a is in byte form unless block_id
         except sqlite3.Error as er:
-            raise Exceptions.RetrievalException('Error', er.__cause__)
+            raise Exceptions.RetrievalException('Error', er.msg)
         except sqlite3.DatabaseError as er:
-            raise Exceptions.RetrievalException('DatabaseError', er.__cause__)
+            raise Exceptions.RetrievalException('DatabaseError', er.msg)
         except sqlite3.IntegrityError as er:
-            raise Exceptions.RetrievalException('IntegrityError', er.__cause__)
+            raise Exceptions.RetrievalException('IntegrityError', er.msg)
         except sqlite3.ProgrammingError as er:
-            raise Exceptions.RetrievalException('ProgrammingError', er.__cause__)
+            raise Exceptions.RetrievalException('ProgrammingError', er.msg)
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Database insert stopped")
         finally:
@@ -160,15 +161,14 @@ class Blockchain:
             c.execute('INSERT INTO blocks VALUES (?,?,?,?,?)', t)
             conn.commit()
             conn.close()
-            #
         except sqlite3.Error as er:
-            raise Exceptions.InsertException('Error', er.__cause__)
+            raise Exceptions.InsertException('Error', er.msg)
         except sqlite3.DatabaseError as er:
-            raise Exceptions.InsertException('DatabaseError', er.__cause__)
+            raise Exceptions.InsertException('DatabaseError', er.msg)
         except sqlite3.IntegrityError as er:
-            raise Exceptions.InsertException('IntegrityError', er.__cause__)
+            raise Exceptions.InsertException('IntegrityError', er.msg)
         except sqlite3.ProgrammingError as er:
-            raise Exceptions.InsertException('ProgrammingError', er.__cause__)
+            raise Exceptions.InsertException('ProgrammingError', er.msg)
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Database insert stopped")
         finally:
@@ -194,30 +194,35 @@ class Blockchain:
             conn.commit()
             conn.close()
         except sqlite3.Error as er:
-            raise Exceptions.UpdateChainException('Error', er.__cause__)
+            raise Exceptions.UpdateChainException('Error', er.msg)
         except sqlite3.DatabaseError as er:
-            raise Exceptions.UpdateChainException('DatabaseError', er.__cause__)
+            raise Exceptions.UpdateChainException('DatabaseError', er.msg)
         except sqlite3.IntegrityError as er:
-            raise Exceptions.UpdateChainException('IntegrityError', er.__cause__)
+            raise Exceptions.UpdateChainException('IntegrityError', er.msg)
         except sqlite3.ProgrammingError as er:
-            raise Exceptions.UpdateChainException('ProgrammingError', er.__cause__)
+            raise Exceptions.UpdateChainException('ProgrammingError', er.msg)
         except Exceptions.InsertException as er:
-            raise Exceptions.UpdateChainException('InsertException', er.__cause__)
+            raise Exceptions.UpdateChainException('InsertException', er.msg)
         except subprocess.SubprocessError as er:
-            raise Exceptions.UpdateChainException('SubprocessError', er.__cause__)
+            raise Exceptions.UpdateChainException('SubprocessError', er.msg)
         except subprocess.TimeoutExpired as er:
-            raise Exceptions.UpdateChainException('TimeoutExpired', er.__cause__)
+            raise Exceptions.UpdateChainException('TimeoutExpired', er.msg)
         except subprocess.CalledProcessError as er:
-            raise Exceptions.UpdateChainException('CalledProcessError', er.__cause__)
+            raise Exceptions.UpdateChainException('CalledProcessError', er.msg)
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Chain update stopped")
 
-    """def genesis_block():#TODO: add exception handlers
+    def genesis_block():#TODO: add exception handlers
         try:
-            genhash = bytearray('0000000000000000000000000000000000000000000000000000000000000000')#TODO: make real hash
-            Transaction('0000000000000000000000000000000000000000000000000000000000000000',)
-            gendata = '000000000000000000000000000000000 - 5000000 > $$$\n$$$ - 5000000 > 16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM\n'
-            b = Block(0, genhash, gendata)
+            t = Transaction('0000000000000000000000000000000000000000000000000000000000000000', ('16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM', ), '5000000', 'GEN-CUR')
+            prevhash = '0000000000000000000000000000000000000000000000000000000000000000'#TODO: make real hash
+            gendata = t.data
+            b = Block(0, prevhash, gendata)
+            return b
+            # returns Block object
+        except Exceptions.TransactionError as er:
+            print("""error: {}
+            Failed to retrieve genesis block""".format(er.message))
 
 
     def searchBlock():
@@ -234,8 +239,4 @@ class Blockchain:
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
-            """
-#def searchTransaction():
-Blockchain.create_blockchain()
-Blockchain.insert(0, 'foo', 'bar', 'baq', 'qab')
-print(str(Blockchain.retrieve('block_id', None, None, None, None)))
+    def searchTransaction():

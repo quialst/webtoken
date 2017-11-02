@@ -2,8 +2,7 @@ from time import localtime
 from time import time
 from time import struct_time
 import hashlib
-
-#TODO: replace bytearray() with str(<variable>).encode('utf-8')
+#TODO: add append data
 
 
 class Block:
@@ -22,13 +21,6 @@ class Block:
         self.data = str(data).encode()
         self.hashdata = (str(block_id) + str(prevhash) + str(data)).encode()
         self.hash = hashlib.sha256(self.hashdata.encode()).digest()
-    def get_block_id(self):
-        return self.block_id
-    def get_timestamp(self):
-        return self.timestamp
-    def get_prevhash(self):
-        return self.prevhash
-    def get_data(self):
-        return self.data
-    def get_hash(self):
-        return self.hash
+
+    def append_data(self, new_data):
+        self.data = self.data + str(new_data).encode()

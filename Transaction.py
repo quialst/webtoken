@@ -44,27 +44,5 @@ class Transaction:
         self.amount = str(amount).encode()
         self.transaction_type = str(transaction_type).encode()
         self.timestamp = str(get_timestamp()).encode()
-        #TODO: add hashing of data
-        self.trans_hash = hashlib.sha256().digest()
-        self.data = to_string(self.trans_hash.decode(), self.from_address.decode(), self.num_of_dest.decode(), dest, self.amount.decode(), self.transaction_type.decode(), self.timestamp.decode())
-
-    def get_from_address(self):
-        return self.from_address
-
-    def get_num_of_dest(self):
-        return self.num_of_dest
-
-    def get_dest(self):
-        return self.dest
-
-    def get_amount(self):
-        return self.amount
-
-    def get_transaction_type(self):
-        return self.transaction_type
-
-    def get_tans_hash(self):
-        return self.trans_hash
-
-    def get_data(self):
-        return self.data
+        self.trans_hash = hashlib.sha256(self.from_address+self.num_of_dest+self.dest+self.amount+self.transaction_type+self.timestamp).hexdigest().encode()
+        self.data = to_string(self.trans_hash.decode(), self.from_address.decode(), self.num_of_dest.decode(), self.dest.decode(), self.amount.decode(), self.transaction_type.decode(), self.timestamp.decode())

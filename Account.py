@@ -25,16 +25,16 @@ class Account:
             conn.close()
         except sqlite3.Error as er:
             print("""error: {}
-            Wallet creation failed""".format(er.__cause__))
+            Wallet creation failed""".format(er.msg))
         except sqlite3.DatabaseError as er:
             print("""error: {}
-            Wallet creation failed""".format(er.__cause__))
+            Wallet creation failed""".format(er.msg))
         except sqlite3.IntegrityError as er:
             print("""error: {}
-            Wallet creation failed""".format(er.__cause__))
+            Wallet creation failed""".format(er.msg))
         except sqlite3.ProgrammingError as er:
             print("""error: {}
-            Wallet creation failed""".format(er.__cause__))
+            Wallet creation failed""".format(er.msg))
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Wallet creation stopped")
         except EOFError:
@@ -56,13 +56,13 @@ class Account:
             conn.close()
             sys.exit(0)
         except sqlite3.Error as er:
-            raise Exceptions.InsertException('Error', er.__cause__)
+            raise Exceptions.InsertException('Error', er.msg)
         except sqlite3.DatabaseError as er:
-            raise Exceptions.InsertException('DatabaseError', er.__cause__)
+            raise Exceptions.InsertException('DatabaseError', er.msg)
         except sqlite3.IntegrityError as er:
-            raise Exceptions.InsertException('IntegrityError', er.__cause__)
+            raise Exceptions.InsertException('IntegrityError', er.msg)
         except sqlite3.ProgrammingError as er:
-            raise Exceptions.InsertException('ProgrammingError', er.__cause__)
+            raise Exceptions.InsertException('ProgrammingError', er.msg)
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Database insert stopped")
         finally:
@@ -96,7 +96,7 @@ class Account:
             c.execute('SELECT {} FROM accounts'.format(select_str))
             a = c.fetchall()
         conn.close()
-        return a#a is in bytes if not block_id
+        return a #a is in bytes if not block_id
         sys.exit(0)
 
     def update(variable, value, location, location_value):
@@ -149,13 +149,13 @@ class Account:
             conn.close()
             sys.exit(0)
         except sqlite3.Error as er:
-            raise Exceptions.RetrievalException('Error', er.__cause__)
+            raise Exceptions.RetrievalException('Error', er.msg)
         except sqlite3.DatabaseError as er:
-            raise Exceptions.RetrievalException('DatabaseError', er.__cause__)
+            raise Exceptions.RetrievalException('DatabaseError', er.msg)
         except sqlite3.IntegrityError as er:
-            raise Exceptions.RetrievalException('IntegrityError', er.__cause__)
+            raise Exceptions.RetrievalException('IntegrityError', er.msg)
         except sqlite3.ProgrammingError as er:
-            raise Exceptions.RetrievalException('ProgrammingError', er.__cause__)
+            raise Exceptions.RetrievalException('ProgrammingError', er.msg)
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Database update stopped")
         finally:
@@ -194,6 +194,6 @@ class Account:
         except InsertException as er:
             print("""InsertException: Database insert failed
             {}: {}
-            Wallet creation failed""".format(er.error, er.__cause__))
+            Wallet creation failed""".format(er.error, er.msg))
         finally:
             sys.exit(0)
