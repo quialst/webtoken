@@ -6,34 +6,34 @@ class RetrievalException(Exception):
         Exception.__init__(self)
         self.error = error
         self.message = message
-    msg = self.message
+    #msg = self.message
 class InsertException(Exception):
     def __init__(self, error, message):
         Exception.__init__(self)
         self.error = error
         self.message = message
-    msg = self.message
+    #msg = self.message
 class UpdateException(Exception):
     def __init__(self, error, message):
         Exception.__init__(self)
         self.error = error
         self.message = message
-    msg = self.message
+    #msg = self.message
 class UpdateChainException(Exception):
     def __init__(self, error, message):
         Exception.__init__(self)
         self.error = error
         self.message = message
-    msg = self.message
+    #msg = self.message
 class BlockError(Exception):
     def __init__(self, error, message):
         Exception.__init(self)
         self.error = message
         self.message = message
-    msg = self.message
+    #msg = self.message
 class TransactionError(Exception):
     def __init__(self, error, message):
         Exception.__init(self)
         self.error = message
         self.message = message
-    msg = self.message
+    #msg = self.message

@@ -7,14 +7,47 @@ from time import struct_time
 import os
 import Exceptions
 #TODO: add sqlite3.OperationalError exception handlers
-#TODO: should not be called for methods that are called by other methods
-#TODO: raising and error as er does not work. Learn how to use __cause__
-#TODO: use type to verify that the database is a sqlite database
-#TODO: insert is not working figure out why
+#TODO: some stuff should not be called for methods that are called by other methods
 #TODO: find out how to rollback a connection in a finally clause
 
 
 class Blockchain:
+    def update_chain():
+        try:
+            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
+            conn = sqlite3.connect(str(co))
+            c = conn.cursor()
+            a = retrieve('block_id', 'max', None, None, False)
+            b = Node.block_retrieve('block_id', 'max', None, None, False)
+            while a[0] < b[0]:
+                x = retrieve('block_id', 'max', None, None, False)
+                data = Node.block_retrieve('*', None, 'block_id', x[0]+1, False)
+                insert(data[0], data[1].encode(), data[2].encode(), data[3].encode(), data[4].encode())
+                a = retrieve('block_id', 'max', None, None, False)
+            else:
+                print("Updated")
+            print("Updated")
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as er:
+            raise Exceptions.UpdateChainException('Error', 'foo')
+        except sqlite3.DatabaseError as er:
+            raise Exceptions.UpdateChainException('DatabaseError', 'foo')
+        except sqlite3.IntegrityError as er:
+            raise Exceptions.UpdateChainException('IntegrityError', 'foo')
+        except sqlite3.ProgrammingError as er:
+            raise Exceptions.UpdateChainException('ProgrammingError', 'foo')
+        except Exceptions.InsertException as er:
+            raise Exceptions.UpdateChainException('InsertException', 'foo')
+        except subprocess.SubprocessError as er:
+            raise Exceptions.UpdateChainException('SubprocessError', 'foo')
+        except subprocess.TimeoutExpired as er:
+            raise Exceptions.UpdateChainException('TimeoutExpired', 'foo')
+        except subprocess.CalledProcessError as er:
+            raise Exceptions.UpdateChainException('CalledProcessError', 'foo')
+        except KeyboardInterrupt:
+            print("KeyboardInterrupt: Chain update stopped")
+
     @staticmethod
     def create_blockchain():
         try:
@@ -24,30 +57,36 @@ class Blockchain:
             (block_id INTEGER PRIMARY KEY, prevhash BLOB NOT NULL, data BLOB NOT NULL, block_hash BLOB NOT NULL, nonce BLOB NOT NULL)''')
             conn.commit()
             conn.close()
-            update_chain()
-        except sqlite3.Error as er:
-            print("""error: {}
-            Blockchain creation failed""".format(er.msg))
-        except sqlite3.DatabaseError as er:
-            print("""error: {}
-            Blockchain creation failed""".format(er.msg))
-        except sqlite3.IntegrityError as er:
-            print("""error: {}
-            Blockchain creation failed""".format(er.msg))
-        except sqlite3.ProgrammingError as er:
-            print("""error: {}
-            Blockchain creation failed""".format(er.msg))
+            #update_chain()
+        #except sqlite3.Error as er:
+            #print('sqlite eror')
+            #print("""error: {}
+            #Blockchain creation failed""".format('foo'))
+        #except sqlite3.DatabaseError as er:
+            #print('database')
+            #print("""error: {}
+            #Blockchain creation failed""".format('foo'))
+        #except sqlite3.IntegrityError as er:
+            #print('integrity')
+            #print("""error: {}
+            #Blockchain creation failed""".format('foo'))
+        #except sqlite3.ProgrammingError as er:
+            #print('programming')
+            #print("""error: {}
+            #Blockchain creation failed""".format('foo'))
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Wallet creation stopped")
         except EOFError:
             print("EOFError: Unexpected end of file")
         except Exceptions.InsertException as er:
-            print("""InsertException: Database insert failed
-            {}: {}
-            Blockchain creation failed""".format(er.error, er.msg))
+            print('insert exception')
+            #print("""InsertException: Database insert failed
+            #{}: {}
+            #Blockchain creation failed""".format('bar', 'foo'))
         finally:
-            conn.rollback()
-            conn.close()
+            pass
+            #conn.rollback()
+            #conn.close()
 
     def update(variable, value, location, location_value):
         try:
@@ -96,24 +135,25 @@ class Blockchain:
             conn.commit()
             conn.close()
         except sqlite3.Error as er:
-            raise UpdateException('Error', er.msg)
+            raise UpdateException('Error', 'foo')
         except sqlite3.DatabaseError as er:
-            raise UpdateException('DatabaseError', er.msg)
+            raise UpdateException('DatabaseError', 'foo')
         except sqlite3.IntegrityError as er:
-            raise UpdateException('IntegrityError', er.msg)
+            raise UpdateException('IntegrityError', 'foo')
         except sqlite3.ProgrammingError as er:
-            raise UpdateException('ProgrammingError', er.msg)
+            raise UpdateException('ProgrammingError', 'foo')
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Database update stopped")
         finally:
-            conn.rollback()
-            conn.close()
+            pass
+            #conn.rollback()
+            #conn.close()
 
     @staticmethod
     def retrieve(variable, condition, location, location_value, is_like):
         try:
             co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
-            conn = sqlite3.connect(str(co))
+            conn = sqlite3.connect(str(co.decode()))
             c = conn.cursor()
             select_str = variable
             where_str = ''
@@ -125,92 +165,62 @@ class Blockchain:
                 where_str = '{}'.format(location)
                 t = (location_value, )
                 if is_like != True:
-                    c.execute('SELECT {} FROM accounts WHERE {} = ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
+                    c.execute('SELECT {} FROM blocks WHERE {} = ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
                     a = c.fetchall()
                 elif is_like == True:
-                    c.execute('SELECT {} FROM accounts WHERE {} LIKE ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
+                    c.execute('SELECT {} FROM blocks WHERE {} LIKE ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
                     a = c.fetchall()
                 else:
                     raise Exceptions.RetrievalException('SQLite3ArgumentError', 'Invalid argument "{}"'.format(is_like))
             else:
-                c.execute('SELECT {} FROM accounts'.format(select_str))
+                c.execute('SELECT {} FROM blocks'.format(select_str))
                 a = c.fetchall()
             conn.close()
             return a# a is in byte form unless block_id
         except sqlite3.Error as er:
-            raise Exceptions.RetrievalException('Error', er.msg)
+            raise Exceptions.RetrievalException('Error', 'foo')
         except sqlite3.DatabaseError as er:
-            raise Exceptions.RetrievalException('DatabaseError', er.msg)
+            raise Exceptions.RetrievalException('DatabaseError', 'foo')
         except sqlite3.IntegrityError as er:
-            raise Exceptions.RetrievalException('IntegrityError', er.msg)
+            raise Exceptions.RetrievalException('IntegrityError', 'foo')
         except sqlite3.ProgrammingError as er:
-            raise Exceptions.RetrievalException('ProgrammingError', er.msg)
+            raise Exceptions.RetrievalException('ProgrammingError', 'foo')
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Database insert stopped")
         finally:
-            """conn.rollback()
-            conn.close()"""
+            pass
+            #conn.rollback()
+            #conn.close()
 
     @staticmethod
     def insert(block_id, prevhash, data, block_hash, nonce):
         try:
             co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
-            conn = sqlite3.connect(str(co))
+            print(str(co.decode()))
+            conn = sqlite3.connect(str(co.decode()))
             c = conn.cursor()
             t = (block_id, prevhash.encode(), data.encode(), block_hash.encode(), nonce.encode())
             c.execute('INSERT INTO blocks VALUES (?,?,?,?,?)', t)
             conn.commit()
             conn.close()
         except sqlite3.Error as er:
-            raise Exceptions.InsertException('Error', er.msg)
+            pass
+            #raise Exceptions.InsertException('Error', 'foo')
         except sqlite3.DatabaseError as er:
-            raise Exceptions.InsertException('DatabaseError', er.msg)
+            pass
+            #raise Exceptions.InsertException('DatabaseError', 'foo')
         except sqlite3.IntegrityError as er:
-            raise Exceptions.InsertException('IntegrityError', er.msg)
+            pass
+            #raise Exceptions.InsertException('IntegrityError', 'foo')
         except sqlite3.ProgrammingError as er:
-            raise Exceptions.InsertException('ProgrammingError', er.msg)
+            pass
+            #raise Exceptions.InsertException('ProgrammingError', 'foo')
         except KeyboardInterrupt:
             print("KeyboardInterrupt: Database insert stopped")
         finally:
-            """conn.rollback()
-            conn.close()"""
-
-
-    def update_chain():
-        try:
-            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
-            conn = sqlite3.connect(str(co))
-            c = conn.cursor()
-            a = retrieve('block_id', 'max', None, None, False)
-            b = Node.block_retrieve('block_id', 'max', None, None, False)
-            while a[0] < b[0]:
-                x = retrieve('block_id', 'max', None, None, False)
-                data = Node.block_retrieve('*', None, 'block_id', x[0]+1, False)
-                insert(data[0], data[1].encode(), data[2].encode(), data[3].encode(), data[4].encode())
-                a = retrieve('block_id', 'max', None, None, False)
-            else:
-                print("Updated")
-            print("Updated")
-            conn.commit()
-            conn.close()
-        except sqlite3.Error as er:
-            raise Exceptions.UpdateChainException('Error', er.msg)
-        except sqlite3.DatabaseError as er:
-            raise Exceptions.UpdateChainException('DatabaseError', er.msg)
-        except sqlite3.IntegrityError as er:
-            raise Exceptions.UpdateChainException('IntegrityError', er.msg)
-        except sqlite3.ProgrammingError as er:
-            raise Exceptions.UpdateChainException('ProgrammingError', er.msg)
-        except Exceptions.InsertException as er:
-            raise Exceptions.UpdateChainException('InsertException', er.msg)
-        except subprocess.SubprocessError as er:
-            raise Exceptions.UpdateChainException('SubprocessError', er.msg)
-        except subprocess.TimeoutExpired as er:
-            raise Exceptions.UpdateChainException('TimeoutExpired', er.msg)
-        except subprocess.CalledProcessError as er:
-            raise Exceptions.UpdateChainException('CalledProcessError', er.msg)
-        except KeyboardInterrupt:
-            print("KeyboardInterrupt: Chain update stopped")
+            pass
+            #conn.rollback()
+            #conn.close()
 
     def genesis_block():#TODO: add exception handlers
         try:
@@ -221,8 +231,8 @@ class Blockchain:
             return b
             # returns Block object
         except Exceptions.TransactionError as er:
-            print("""error: {}
-            Failed to retrieve genesis block""".format(er.message))
+            print('error: ')
+            #Failed to retrieve genesis block""".format(er.message)
 
 
     def searchBlock():
@@ -231,7 +241,8 @@ class Blockchain:
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
-
+        except:
+            pass
 
     def replaceBlockchain():
         try:
@@ -239,4 +250,9 @@ class Blockchain:
             conn = sqlite3.connect(co)
             del co
             c = conn.cursor()
-    def searchTransaction():
+        except:
+            pass
+
+Blockchain.create_blockchain()
+Blockchain.insert(9, 'hri', 'ask', 'kyrg', 'muwed')
+print(Blockchain.retrieve('prevhash', None, 'block_id', 9, None))
