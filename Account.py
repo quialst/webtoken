@@ -47,7 +47,7 @@ class Account:
     def insert(id_num, address, privkey, pubkey, sig, sigtext, balance):
         try:
             co = check_output(["find", os.getcwd(), "-name", "wallet.db"]).strip()
-            conn = sqlite3.connect(str(co))
+            conn = sqlite3.connect(str(co.decode()))
             del co
             c = conn.cursor()
             t = (id_num, address.encode(), privkey.encode(), pubkey.encode(), sig.encode(), sigtext.encode(), balance.encode())
@@ -72,7 +72,7 @@ class Account:
 
     def retrieve(variable, condition, location, location_value, is_like):#usage variable(desired data) condition(min max or none) location(WHERE variable) location (WHERE variable value) is_like(LIKE clause desired)
         co = check_output(["find", os.getcwd(), "-name", "wallet.db"]).strip()
-        conn = sqlite3.connect(str(co))
+        conn = sqlite3.connect(str(co.decode()))
         del co
         c = conn.cursor()
         select_str = variable
@@ -103,7 +103,7 @@ class Account:
         """variable is the variably you want to change. value is the desired value for the variable"""
         try:
             co = check_output(["find", os.getcwd(), "-name", "wallet.db"]).strip()
-            conn = sqlite3.connect(str(co))
+            conn = sqlite3.connect(str(co.decode()))
             del co
             c = conn.cursor()
             set_str = variable

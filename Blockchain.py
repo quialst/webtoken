@@ -15,7 +15,7 @@ class Blockchain:
     def update_chain():
         try:
             co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
-            conn = sqlite3.connect(str(co))
+            conn = sqlite3.connect(str(co.decode()))
             c = conn.cursor()
             a = retrieve('block_id', 'max', None, None, False)
             b = Node.block_retrieve('block_id', 'max', None, None, False)
@@ -91,14 +91,14 @@ class Blockchain:
     def update(variable, value, location, location_value):
         try:
             co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
-            conn = sqlite3.connect(str(co))
+            conn = sqlite3.connect(str(co.decode()))
             c = conn.cursor()
             set_str = variable
             where_str = location
             if isinstance(value, str):
                 if isinstance(location_value, str):
                     if location != 'block_id':
-                        t = (value.encode(), location_value.encode)
+                        t = (value.encode(), location_value.encode())
                     elif location == 'block_id':
                         t = (value, location_value)
                     else:
@@ -107,7 +107,7 @@ class Blockchain:
                     if location != 'block_id':
                         t = (value.encode(), bytes(location_value))
                     elif location == 'block_id':
-                        t = (value, location_value)
+                        t = (value.encode(), location_value)
                     else:
                         raise TypeError('Invalid update argument')
                 else:
@@ -196,7 +196,6 @@ class Blockchain:
     def insert(block_id, prevhash, data, block_hash, nonce):
         try:
             co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
-            print(str(co.decode()))
             conn = sqlite3.connect(str(co.decode()))
             c = conn.cursor()
             t = (block_id, prevhash.encode(), data.encode(), block_hash.encode(), nonce.encode())
@@ -252,7 +251,3 @@ class Blockchain:
             c = conn.cursor()
         except:
             pass
-
-Blockchain.create_blockchain()
-Blockchain.insert(9, 'hri', 'ask', 'kyrg', 'muwed')
-print(Blockchain.retrieve('prevhash', None, 'block_id', 9, None))
