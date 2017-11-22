@@ -7,8 +7,12 @@ if [ “$PYTHON_VERSION” != “Python 3.6.2” ]
 then
 brew instal python3
 fi
+brew install tor
 pip3 install ecdsa
 pip3 install base58
+pip3 install pycurl
+pip3 install stem
+pip3 install pysocks
 
 #config filesystem tree
 mkdir webtoken
