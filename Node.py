@@ -23,6 +23,10 @@ class Node:
             init_msg_handler = print_bootstrap_lines,
         )
     def get_nodes():
-    def query(payload, node):
-            r = requests.post(str(node), data=payload)
-            return r.text
+    def query(datatype = 'block', time = 1, id_num = None, node):#time = 0(first) 1(latest) 2(other)
+        if time != 2:
+            payload = {'datatype': datatype, 'time': time}
+        elif time == 0 or time == 1:
+            payload = {'datatype': datatype, 'time': time, 'id': id_num}
+        r = requests.post(('http://'+str(node)), data=payload)
+        return r.text
