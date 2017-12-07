@@ -21,7 +21,7 @@ class Blockchain:
             b = Node.block_retrieve('block_id', 'max', None, None, False)
             while a[0] < b[0]:
                 x = retrieve('block_id', 'max', None, None, False)
-                data = Node.block_retrieve('*', None, 'block_id', x[0]+1, False)
+                data = Node.query_data()
                 insert(data[0], data[1].encode(), data[2].encode(), data[3].encode(), data[4].encode())
                 a = retrieve('block_id', 'max', None, None, False)
             else:

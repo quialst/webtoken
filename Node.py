@@ -9,12 +9,10 @@ class Node:
         if "Bootstrapped" in line:
             print(term.format(line, term.Color.BLUE))
 
-    def init(port, locale):
+    def init(port, locale = 'en'):
         SOCKS_PORT = port
         if port == None:
             SOCKS_PORT = 7000
-        if locale == None:
-            locale = 'en'
         tor_process = stem.process.launch_tor_with_config(
             config = {
                 'SocksPort': str(SOCKS_PORT),
@@ -23,7 +21,8 @@ class Node:
             init_msg_handler = print_bootstrap_lines,
         )
     def get_nodes():
-    def query(datatype = 'block', time = 1, id_num = None, node):#time = 0(first) 1(latest) 2(other)
+
+    def query_data(datatype = 'block', time = 1, id_num = None, node):#time = 0(first) 1(latest) 2(other)
         if time != 2:
             payload = {'datatype': datatype, 'time': time}
         elif time == 0 or time == 1:
