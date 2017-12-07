@@ -8,8 +8,6 @@ import sqlite3
 import sys
 from subprocess import check_output
 import os
-#TODO: sys.exit(0) should not be called for methods that are called by other methods
-#TODO: use type to verify that the database is a sqlite database
 class Account:
     @staticmethod
     def create_wallet():
@@ -22,7 +20,7 @@ class Account:
             conn.commit()
             conn.close()
         except:
-            print('Error:\nWallet could not be created')
+            print('\aError:\nWallet could not be created')
         finally:
             sys.exit(0)
 
@@ -37,7 +35,7 @@ class Account:
             conn.commit()
             conn.close()
         except:
-            print('Error:\nAddress could not be recorded')
+            print('\aError:\nAddress could not be recorded')
         finally:
             sys.exit(0)
 
@@ -67,7 +65,7 @@ class Account:
             conn.close()
             return a #a is in bytes if not block_id
         except:
-            print('Error:\nCould not retrieve address')
+            print('\aError:\nCould not retrieve address')
         finally:
             sys.exit(0)
 
@@ -102,7 +100,7 @@ class Account:
             conn.commit()
             conn.close()
         except:
-            print('Error:\nCould not update wallet')
+            print('\aError:\nCould not update wallet')
         finally:
             sys.exit(0)
 
@@ -128,7 +126,7 @@ class Account:
             address = base58.b58encode(s6)# do a base58 encode
             Account.insert(id_num, address.encode(), sk.to_string(), vk.to_string(), sig, sigtext, 0)
         except:
-            print('Error:\nCould not create address')
+            print('\aError:\nCould not create address')
         finally:
             sys.exit(0)
     def wallet_balance():
@@ -139,6 +137,6 @@ class Account:
                 total = total + bl[i][0]
             return total
         except:
-            print('Error:\nCould not retrieve balance')
+            print('\aError:\nCould not retrieve balance')
         finally:
             sys.exit(0)
