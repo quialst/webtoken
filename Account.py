@@ -8,7 +8,6 @@ import sqlite3
 import sys
 from subprocess import check_output
 import os
-import Exceptions
 #TODO: sys.exit(0) should not be called for methods that are called by other methods
 #TODO: use type to verify that the database is a sqlite database
 class Account:
@@ -22,24 +21,10 @@ class Account:
             pubkey BLOB NOT NULL, sig BLOB NOT NULL, sigtext BLOB NOT NULL, balance BLOB)''')
             conn.commit()
             conn.close()
-        except sqlite3.Error as er:
-            print("""error: {}
-            Wallet creation failed""".format(er.msg))
-        except sqlite3.DatabaseError as er:
-            print("""error: {}
-            Wallet creation failed""".format(er.msg))
-        except sqlite3.IntegrityError as er:
-            print("""error: {}
-            Wallet creation failed""".format(er.msg))
-        except sqlite3.ProgrammingError as er:
-            print("""error: {}
-            Wallet creation failed""".format(er.msg))
-        except KeyboardInterrupt:
-            print("KeyboardInterrupt: Wallet creation stopped")
-        except EOFError:
-            print("EOFError: Unexpected end of file")
+        except:
+            print('Error:\nWallet could not be created')
         finally:
-            pass
+            sys.exit(0)
 
     def insert(id_num, address, privkey, pubkey, sig, sigtext, balance):
         try:
@@ -51,37 +36,40 @@ class Account:
             c.execute('INSERT INTO accounts VALUES (?,?,?,?,?,?,?)', t)
             conn.commit()
             conn.close()
-        except KeyboardInterrupt:
-            print("KeyboardInterrupt: Database insert stopped")
+        except:
+            print('Error:\nAddress could not be recorded')
         finally:
-            pass
+            sys.exit(0)
 
     def retrieve(variable = '*', condition = None, location = None, location_value = None, is_like = False):#usage variable(desired data) condition(min max or none) location(WHERE variable) location (WHERE variable value) is_like(LIKE clause desired)
-        co = check_output(["find", os.getcwd(), "-name", "wallet.db"]).strip()
-        conn = sqlite3.connect(str(co.decode()))
-        del co
-        c = conn.cursor()
-        select_str = variable
-        where_str = ''
-        if condition == 'min' or condition == 'max':
-            select_str = '{}({})'.format(condition.upper(), select_str)
-        if location != None or location_value != None:
-            where_str = '{}'.format(location)
-            t = (location_value, )
-            if is_like != True:
-                c.execute('SELECT {} FROM accounts WHERE {} = ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
-                a = c.fetchall()
-            elif is_like == True:
-                c.execute('SELECT {} FROM accounts WHERE {} LIKE ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
-                a = c.fetchall()
+        try:
+            co = check_output(["find", os.getcwd(), "-name", "wallet.db"]).strip()
+            conn = sqlite3.connect(str(co.decode()))
+            c = conn.cursor()
+            select_str = variable
+            where_str = ''
+            if condition == 'min' or condition == 'max':
+                select_str = '{}({})'.format(condition.upper(), select_str)
+            if location != None or location_value != None:
+                where_str = '{}'.format(location)
+                t = (location_value, )
+                if is_like != True:
+                    c.execute('SELECT {} FROM accounts WHERE {} = ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
+                    a = c.fetchall()
+                elif is_like == True:
+                    c.execute('SELECT {} FROM accounts WHERE {} LIKE ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
+                    a = c.fetchall()
+                else:
+                    raise BaseException
             else:
-                raise Exceptions.RetrievalException('SQLite3ArgumentError', 'Invalid argument "{}"'.format(is_like))
-        else:
-            c.execute('SELECT {} FROM accounts'.format(select_str))
-            a = c.fetchall()
-        conn.close()
-        return a #a is in bytes if not block_id
-        sys.exit(0)
+                c.execute('SELECT {} FROM accounts'.format(select_str))
+                a = c.fetchall()
+            conn.close()
+            return a #a is in bytes if not block_id
+        except:
+            print('Error:\nCould not retrieve address')
+        finally:
+            sys.exit(0)
 
     def update(variable, value, location, location_value):
         """variable is the variably you want to change. value is the desired value for the variable"""
@@ -97,34 +85,26 @@ class Account:
                 elif location == 'block_id':
                     t = (value, location_value)
                 else:
-                    raise TypeError('Invalid update argument')
+                    raise BaseException
             elif isinstance(value, int):
                 if location != 'block_id':
                     t = (str(value).encode(), location_value)
                 elif location == 'block_id':
                     t = (value, location)
                 else:
-                    raise TypeError('Invalid update argument')
+                    raise BaseException
             else:
-                raise TypeError('Invalid update argument')
+                raise BaseException
             print(set_str)
             print(where_str)
             print(t)
             c.execute('UPDATE accounts SET {} = ? WHERE {} = ?'.format(set_str, where_str), t)
             conn.commit()
             conn.close()
-        except sqlite3.Error as er:
-            raise Exceptions.RetrievalException('Error', er.msg)
-        except sqlite3.DatabaseError as er:
-            raise Exceptions.RetrievalException('DatabaseError', er.msg)
-        except sqlite3.IntegrityError as er:
-            raise Exceptions.RetrievalException('IntegrityError', er.msg)
-        except sqlite3.ProgrammingError as er:
-            raise Exceptions.RetrievalException('ProgrammingError', er.msg)
-        except KeyboardInterrupt:
-            print("KeyboardInterrupt: Database update stopped")
+        except:
+            print('Error:\nCould not update wallet')
         finally:
-            pass
+            sys.exit(0)
 
     def new_address():
         try:
@@ -147,9 +127,18 @@ class Account:
             s6 = (s3+s5)# add 4 bytes to end of ck
             address = base58.b58encode(s6)# do a base58 encode
             Account.insert(id_num, address.encode(), sk.to_string(), vk.to_string(), sig, sigtext, 0)
-        except KeyboardInterrupt:
-            print("KeyboardInterrupt: Wallet creation stopped")
-        except EOFError:
-            print("EOFError: Unexpected end of file")
+        except:
+            print('Error:\nCould not create address')
         finally:
-            pass
+            sys.exit(0)
+    def wallet_balance():
+        try:
+            bl = Account.retrive('balance')
+            total = 0
+            for i in len(bl):
+                total = total + bl[i][0]
+            return total
+        except:
+            print('Error:\nCould not retrieve balance')
+        finally:
+            sys.exit(0)
