@@ -9,7 +9,6 @@ import sys
 from subprocess import check_output
 import os
 class Account:
-    @staticmethod
     def create_wallet():
         try:
             conn = sqlite3.connect('wallet.db')
@@ -104,7 +103,7 @@ class Account:
         finally:
             sys.exit(0)
 
-    def new_address():
+    def new_address(signature = 'signature'):
         try:
             id_num = Account.retrieve('id_num', 'max')[0][0]
             if id_num == None:
@@ -113,7 +112,7 @@ class Account:
                 id_num = id_num + 1
             sk = SigningKey.generate(curve=SECP256k1)# private ecdsa key
             vk = sk.get_verifying_key()# verifying key j4kiks
-            sigtext = b"signature"
+            sigtext = signature.encode()
             sig = sk.sign(sigtext)
             s1 = hashlib.sha256(sk.to_string()).digest()# sha hashing of public key in binary
             temp = hashlib.new('ripemd160')# make ripemd150 object
@@ -129,6 +128,7 @@ class Account:
             print('\aError:\nCould not create address')
         finally:
             sys.exit(0)
+
     def wallet_balance():
         try:
             bl = Account.retrive('balance')

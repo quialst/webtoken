@@ -1,6 +1,6 @@
 import sqlite3
 import sys
-import subprocess
+from subprocess import check_output
 from time import localtime
 from time import time
 from time import struct_time
@@ -8,13 +8,12 @@ import os
 import Exceptions
 #TODO: add sqlite3.OperationalError exception handlers
 #TODO: some stuff should not be called for methods that are called by other methods
-#TODO: find out how to rollback a connection in a finally clause
 
 
 class Blockchain:
     def update_chain():
         try:
-            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
+            co = check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
             conn = sqlite3.connect(str(co.decode()))
             c = conn.cursor()
             a = retrieve('block_id', 'max', None, None, False)
@@ -34,10 +33,10 @@ class Blockchain:
         finally:
             sys.exit(0)
 
-    @staticmethod
     def create_blockchain():
         try:
-            conn = sqlite3.connect('blockchain.db')
+            co = check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
+            conn = sqlite3.connect(str(co.decode()))
             c = conn.cursor()
             c.execute('''CREATE TABLE blocks
             (block_id INTEGER PRIMARY KEY, prevhash BLOB NOT NULL, data BLOB NOT NULL, block_hash BLOB NOT NULL, nonce BLOB NOT NULL)''')
@@ -51,7 +50,7 @@ class Blockchain:
 
     def update(variable, value, location, location_value):
         try:
-            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
+            co = check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
             conn = sqlite3.connect(str(co.decode()))
             c = conn.cursor()
             set_str = variable
@@ -100,10 +99,9 @@ class Blockchain:
         finally:
             sys.exit(0)
 
-    @staticmethod
-    def retrieve(variable, condition, location, location_value, is_like):
+    def retrieve(variable = '*', condition = None, location = None, location_value = None, is_like = False):
         try:
-            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
+            co = check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
             conn = sqlite3.connect(str(co.decode()))
             c = conn.cursor()
             select_str = variable
@@ -122,7 +120,7 @@ class Blockchain:
                     c.execute('SELECT {} FROM blocks WHERE {} LIKE ?'.format(select_str, where_str), t)#usage: SELECT select_str(variable with condition) WHERE where_str(location) = location_value
                     a = c.fetchall()
                 else:
-                    raise Exceptions.RetrievalException('SQLite3ArgumentError', 'Invalid argument "{}"'.format(is_like))
+                    raise BaseException
             else:
                 c.execute('SELECT {} FROM blocks'.format(select_str))
                 a = c.fetchall()
@@ -133,10 +131,9 @@ class Blockchain:
         finally:
             sys.exit(0)
 
-    @staticmethod
     def insert(block_id, prevhash, data, block_hash, nonce):
         try:
-            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
+            co = check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
             conn = sqlite3.connect(str(co.decode()))
             c = conn.cursor()
             t = (block_id, prevhash.encode(), data.encode(), block_hash.encode(), nonce.encode())
@@ -148,7 +145,7 @@ class Blockchain:
         finally:
             sys.exit(0)
 
-    def genesis_block():#TODO: add exception handlers
+    def genesis_block():
         try:
             t = Transaction('0000000000000000000000000000000000000000000000000000000000000000', ('16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM', ), '5000000', 'GEN-CUR')
             prevhash = '0000000000000000000000000000000000000000000000000000000000000000'#TODO: make real hash
@@ -161,11 +158,16 @@ class Blockchain:
         finally:
             sys.exit(0)
 
-    def replaceBlockchain():
-        try:
-            co = subprocess.check_output(["find", os.getcwd(), "-name", "blockchain.db"]).strip()
-            conn = sqlite3.connect(co)
-            del co
-            c = conn.cursor()
-        except:
-            pass
+    def replaceBlockchain(primer_id, node_ip):#TODO: add parsing of data from Node.query_data()
+        x = 0
+        while True:
+            block = Node.query_data(time=2, id_num=(primer_id+x), node=node_ip)
+            if block == None:
+                break
+            #parsing goes wherever "block" is called in Blockchain.update(). "block" is a stand in
+            Blockchain.update('prevhash', block, 'block_id', (primer_id+x))
+            Blockchain.update('data', block, 'block_id', (primer_id+x))
+            Blockchain.update('block_hash', block, 'block_id', (primer_id+x))
+            Blockchain.update('nonce', block, 'block_id', (primer_id+x))
+            Blockchain.update('balance', block, 'block_id', (primer_id+x))
+            x = x + 1
